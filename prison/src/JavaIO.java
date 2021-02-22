@@ -1,5 +1,3 @@
-package src;
-
 import Data.Schedule;
 
 import java.io.File;

@@ -1,5 +1,3 @@
-package src;
-
 import Data.*;
 import javafx.application.Application;
 import javafx.collections.FXCollections;

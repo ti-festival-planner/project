@@ -1,4 +1,4 @@
-package src.Data;
+package Data;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

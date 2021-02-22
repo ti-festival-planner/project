@@ -1,4 +1,4 @@
-package src.Data;
+package Data;
 
 public class Groep {
     private String groupName = "";
