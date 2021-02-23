@@ -92,7 +92,7 @@ public class Gui extends Application {
         fileMenu.getItems().add(openFile);
         MenuItem saveFile = new MenuItem("Save as...");
         fileMenu.getItems().add(saveFile);
-        saveFile.setOnAction(event -> saveSelectedFile(FileChooser));
+        saveFile.setOnAction(event -> saveSelectedFile(fileChooser));
         fileMenu.getItems().add(new MenuItem("Exit"));
 
         editMenu.getItems().add(new MenuItem("Schedule"));
@@ -106,18 +106,26 @@ public class Gui extends Application {
         fileChooser.getExtensionFilters().add(extFilter);
 
         //Show save file dialog
-        File file = fileChooser.showSaveDialog(primaryStage);
+        File file = fileChooser.showSaveDialog(null);
 
         if (file != null) {
-            saveTextToFile(sampleText, file);
+            JavaIO.writeData(file, this.schedule);
+//            saveTextToFile(sampleText, file);
+        } else {
+            System.out.println("Cancelled");
         }
     }
 
     private void getSelectedFile(FileChooser fileChooser) {
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
+        fileChooser.getExtensionFilters().add(extFilter);
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null){
             System.out.println(selectedFile);
-            this.schedule = JavaIO.readData(selectedFile);
+            clearSchedule();
+            for(Activity activity: JavaIO.readData(selectedFile)){
+                addItem(activity);
+            }
         } else {
             System.out.println("File is not valid");
         }
@@ -172,6 +180,18 @@ public class Gui extends Application {
     private void deleteButtonClicked() {
     }
 
+    private void addItem(Activity activity){
+        table.getItems().add(activity);
+        schedule.addActivity(activity);
+    }
+
+    private void clearSchedule(){
+        table.getItems().clear();
+        schedule.clearActivities();
+    }
+
+
+
     private void addButtonClicked() {
         Activity activity = new Activity();
         activity.setSecurityLevel(0);
@@ -181,7 +201,7 @@ public class Gui extends Application {
         activity.setGuard(guardComboBox.getValue());
         activity.setGroep(groupComboBox.getValue());
         activity.setArea(areaComboBox.getValue());
-        table.getItems().add(activity);
+        addItem(activity);
         System.out.println(activity);
     }
 

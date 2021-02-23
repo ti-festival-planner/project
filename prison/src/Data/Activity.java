@@ -1,6 +1,7 @@
 package Data;
+import java.io.Serializable;
 
-public class Activity {
+public class Activity implements Serializable {
 
     public int securityLevel;
     public int hourStart;

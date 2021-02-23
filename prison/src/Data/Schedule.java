@@ -3,9 +3,10 @@ package Data;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Schedule {
+public class Schedule implements Serializable {
     public ArrayList<Activity> activities = new ArrayList<>();
     public ObservableList<String> activityNames = FXCollections.observableArrayList();
     public ObservableList<Guard> guards = FXCollections.observableArrayList();
@@ -75,6 +76,18 @@ public class Schedule {
 
     public void setPrisonGroeps(ObservableList<Groep> prisonGroeps) {
         this.prisonGroeps = prisonGroeps;
+    }
+    
+    public void addActivity(Activity activity){
+        activities.add(activity);
+    }
+    
+    public ArrayList<Activity> getActivities (){
+        return activities;
+    }
+    
+    public void clearActivities(){
+        activities.clear();
     }
 
 }

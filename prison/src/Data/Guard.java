@@ -1,6 +1,7 @@
 package Data;
+import java.io.Serializable;
 
-public class Guard {
+public class Guard implements Serializable {
     private String name = "";
 
     Guard(String name) {

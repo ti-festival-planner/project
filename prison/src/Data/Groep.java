@@ -1,6 +1,7 @@
 package Data;
+import java.io.Serializable;
 
-public class Groep {
+public class Groep implements Serializable {
     private String groupName = "";
 
     Groep(String groupName){
