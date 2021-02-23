@@ -29,7 +29,9 @@ public class Gui extends Application {
 
     private Button deleteButton = new Button("Delete");
     private Button addButton = new Button("Add");
-    
+
+
+
     public void start(Stage mainWindow){
         HBox addActivityBox = getHbox();
         MenuBar menuBar = getMenuBar();
@@ -84,11 +86,13 @@ public class Gui extends Application {
 
         fileMenu.getItems().add(new MenuItem("New..."));
 
-        MenuItem openFile = new Menu("Open...");
+        MenuItem openFile = new MenuItem("Open...");
         openFile.setOnAction(event -> { getSelectedFile(fileChooser); });
 
         fileMenu.getItems().add(openFile);
-        fileMenu.getItems().add(new MenuItem("Save as..."));
+        MenuItem saveFile = new MenuItem("Save as...");
+        fileMenu.getItems().add(saveFile);
+        saveFile.setOnAction(event -> saveSelectedFile(FileChooser));
         fileMenu.getItems().add(new MenuItem("Exit"));
 
         editMenu.getItems().add(new MenuItem("Schedule"));
@@ -96,11 +100,24 @@ public class Gui extends Application {
         editMenu.getItems().add(addPane);
     }
 
+    private void saveSelectedFile(FileChooser fileChooser) {
+        //Set extension filter for text files
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //Show save file dialog
+        File file = fileChooser.showSaveDialog(primaryStage);
+
+        if (file != null) {
+            saveTextToFile(sampleText, file);
+        }
+    }
+
     private void getSelectedFile(FileChooser fileChooser) {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null){
             System.out.println(selectedFile);
-            JavaIO.readData(selectedFile,schedule);
+            this.schedule = JavaIO.readData(selectedFile);
         } else {
             System.out.println("File is not valid");
         }
