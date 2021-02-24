@@ -47,26 +47,6 @@ public class Schedule implements Serializable {
             prisonGroeps.add(highSecurity);
     }
 
-//    public ArrayList<Activity> getActivitiesForWarden(Guard guard){
-//        ArrayList<Activity> act = new ArrayList<>();
-//        for (Activity activity : activities) {
-//            if (activity.getGuards().contains(guard)){
-//                act.add(activity);
-//            }
-//            System.out.println(activities);
-//        }
-//        return act;
-//    }
-//
-//    public ArrayList<Activity> getActivitiesForGroup(Groep groep){
-//        ArrayList<Activity> act = new ArrayList<>();
-//        for (Activity activity : activities) {
-//            if (activity.getGroeps().contains(groep)){
-//                act.add(activity);
-//            }
-//        }
-//        return act;
-//    }
 
     public ObservableList<Groep> getPrisonGroeps() {
         return prisonGroeps;

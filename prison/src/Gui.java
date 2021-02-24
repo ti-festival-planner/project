@@ -110,7 +110,6 @@ public class Gui extends Application {
 
         if (file != null) {
             JavaIO.writeData(file, this.schedule);
-//            saveTextToFile(sampleText, file);
         } else {
             System.out.println("Cancelled");
         }
@@ -208,7 +207,6 @@ public class Gui extends Application {
 
     public ObservableList<Activity> getActivity(){
         ObservableList<Activity> activities = FXCollections.observableArrayList();
-//        activities.add(new Activity(0,5,9,"OOM",guardComboBox.getValue(),groupComboBox.getValue(),areaComboBox.getValue()));
         table.setItems(activities);
         System.out.println(activities);
         return activities;
