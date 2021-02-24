@@ -32,7 +32,7 @@ public class Gui extends Application {
 
 
 
-    public void start(Stage mainWindow){
+    public void start(Stage mainWindow) {
         HBox addActivityBox = getHbox();
         MenuBar menuBar = getMenuBar();
         TableView table = getTable();
@@ -178,6 +178,7 @@ public class Gui extends Application {
     }
 
     private void deleteButtonClicked() {
+        // TODO add delete logic
     }
 
     private void addItem(Activity activity){

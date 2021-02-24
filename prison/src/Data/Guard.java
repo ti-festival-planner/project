@@ -9,6 +9,6 @@ public class Guard implements Serializable {
     }
 
     public String toString() {
-        return  name;
+        return this.name;
     }
 }
