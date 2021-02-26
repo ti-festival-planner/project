@@ -1,4 +1,9 @@
-import Data.*;
+import Logic.ActivityController;
+import Logic.ScheduleController;
+import Util.Activity;
+import Util.Area;
+import Util.Groep;
+import Util.Guard;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,10 +17,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
-
 public class Gui extends Application {
-    private Schedule schedule = new Schedule();
+
+
     private VBox mainPaine = new VBox();
     private VBox AddPane = new VBox();
     private TableView<Activity> table;
@@ -30,13 +34,15 @@ public class Gui extends Application {
     private Button deleteButton = new Button("Delete");
     private Button addButton = new Button("Add");
 
-
+    private ActivityController activityController;
+    private ScheduleController scheduleController = new ScheduleController();
 
     public void start(Stage mainWindow){
+
         HBox addActivityBox = getHbox();
         MenuBar menuBar = getMenuBar();
         TableView table = getTable();
-
+        this.activityController = new ActivityController(table);
         mainPaine.getChildren().addAll(menuBar,addActivityBox,table);
 
         mainWindow.setScene(new Scene(mainPaine));
@@ -72,79 +78,43 @@ public class Gui extends Application {
 
     private MenuBar getMenuBar() {
         Menu fileMenu = new Menu("File");
-        Menu editMenu = new Menu("Edit");
+//        Menu editMenu = new Menu("Edit");
 
-        addMenuItems(fileMenu, editMenu);
+        addMenuItems(fileMenu);
 
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(fileMenu,editMenu);
+        menuBar.getMenus().addAll(fileMenu);
         return menuBar;
     }
 
-    private void addMenuItems(Menu fileMenu, Menu editMenu) {
+    private void addMenuItems(Menu fileMenu) {
         FileChooser fileChooser = new FileChooser();
-
-        fileMenu.getItems().add(new MenuItem("New..."));
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
+        fileChooser.getExtensionFilters().add(extFilter);
 
         MenuItem openFile = new MenuItem("Open...");
-        openFile.setOnAction(event -> { getSelectedFile(fileChooser); });
+        openFile.setOnAction(event -> { activityController.getSelectedFile(fileChooser); });
 
         fileMenu.getItems().add(openFile);
         MenuItem saveFile = new MenuItem("Save as...");
         fileMenu.getItems().add(saveFile);
-        saveFile.setOnAction(event -> saveSelectedFile(fileChooser));
-        fileMenu.getItems().add(new MenuItem("Exit"));
-
-        editMenu.getItems().add(new MenuItem("Schedule"));
-        MenuItem addPane = new Menu("Add...");
-        editMenu.getItems().add(addPane);
-    }
-
-    private void saveSelectedFile(FileChooser fileChooser) {
-        //Set extension filter for text files
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        //Show save file dialog
-        File file = fileChooser.showSaveDialog(null);
-
-        if (file != null) {
-            JavaIO.writeData(file, this.schedule);
-//            saveTextToFile(sampleText, file);
-        } else {
-            System.out.println("Cancelled");
-        }
-    }
-
-    private void getSelectedFile(FileChooser fileChooser) {
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
-        fileChooser.getExtensionFilters().add(extFilter);
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null){
-            System.out.println(selectedFile);
-            clearSchedule();
-            for(Activity activity: JavaIO.readData(selectedFile)){
-                addItem(activity);
-            }
-        } else {
-            System.out.println("File is not valid");
-        }
+        saveFile.setOnAction(event -> activityController.saveSelectedFile(fileChooser));
     }
 
     private HBox getHbox() {
         HBox addActivityBox = new HBox();
 
         activityComboBox.setPromptText("Select activity");
-        activityComboBox.getItems().addAll(schedule.activityNames);
+        activityComboBox.getItems().addAll(scheduleController.getActivityNames());
 
         areaComboBox.setPromptText("Select area");
-        areaComboBox.getItems().addAll(schedule.areas);
+        areaComboBox.getItems().addAll(scheduleController.getAreas());
 
         guardComboBox.setPromptText("Select guard");
-        guardComboBox.getItems().addAll(schedule.guards);
+        guardComboBox.getItems().addAll(scheduleController.getGuards());
 
         groupComboBox.setPromptText("Select group");
-        groupComboBox.getItems().addAll(schedule.prisonGroeps);
+        groupComboBox.getItems().addAll(scheduleController.getPrisonGroeps());
 
         addButton.setOnAction(e-> addButtonClicked());
         deleteButton.setOnAction(e-> deleteButtonClicked());
@@ -177,32 +147,22 @@ public class Gui extends Application {
         return addActivityBox;
     }
 
+
+
     private void deleteButtonClicked() {
     }
 
-    private void addItem(Activity activity){
-        table.getItems().add(activity);
-        schedule.addActivity(activity);
-    }
 
-    private void clearSchedule(){
-        table.getItems().clear();
-        schedule.clearActivities();
-    }
 
 
 
     private void addButtonClicked() {
-        Activity activity = new Activity();
-        activity.setSecurityLevel(0);
-        activity.setHourStart(Integer.parseInt(hourStart.getText()));
-        activity.setHourEnd(Integer.parseInt(hourEnd.getText()));
-        activity.setName(activityComboBox.getValue());
-        activity.setGuard(guardComboBox.getValue());
-        activity.setGroep(groupComboBox.getValue());
-        activity.setArea(areaComboBox.getValue());
-        addItem(activity);
-        System.out.println(activity);
+        activityController.addItem(Integer.parseInt(hourStart.getText()),
+                Integer.parseInt(hourEnd.getText()),
+                activityComboBox.getValue(),
+                guardComboBox.getValue(),
+                groupComboBox.getValue(),
+                areaComboBox.getValue());
     }
 
     public ObservableList<Activity> getActivity(){

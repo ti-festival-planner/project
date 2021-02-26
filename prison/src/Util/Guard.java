@@ -1,4 +1,4 @@
-package Data;
+package Util;
 import java.io.Serializable;
 
 public class Guard implements Serializable {

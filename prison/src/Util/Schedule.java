@@ -1,4 +1,4 @@
-package Data;
+package Util;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,43 +49,17 @@ public class Schedule implements Serializable {
         }
     }
 
-//    public ArrayList<Activity> getActivitiesForWarden(Guard guard){
-//        ArrayList<Activity> act = new ArrayList<>();
-//        for (Activity activity : activities) {
-//            if (activity.getGuards().contains(guard)){
-//                act.add(activity);
-//            }
-//            System.out.println(activities);
-//        }
-//        return act;
-//    }
-//
-//    public ArrayList<Activity> getActivitiesForGroup(Groep groep){
-//        ArrayList<Activity> act = new ArrayList<>();
-//        for (Activity activity : activities) {
-//            if (activity.getGroeps().contains(groep)){
-//                act.add(activity);
-//            }
-//        }
-//        return act;
-//    }
 
-    public ObservableList<Groep> getPrisonGroeps() {
-        return prisonGroeps;
-    }
+
 
     public void setPrisonGroeps(ObservableList<Groep> prisonGroeps) {
         this.prisonGroeps = prisonGroeps;
     }
-    
-    public void addActivity(Activity activity){
-        activities.add(activity);
-    }
-    
+
+
     public ArrayList<Activity> getActivities (){
         return activities;
     }
-    
     public void clearActivities(){
         activities.clear();
     }

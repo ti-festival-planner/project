@@ -1,9 +1,8 @@
-package Data;
+package Util;
 import java.io.Serializable;
 
 public class Activity implements Serializable {
 
-    public int securityLevel;
     public int hourStart;
     public int hourEnd;
     public String name;
@@ -16,21 +15,12 @@ public class Activity implements Serializable {
     }
 
     public Activity() {
-        this.securityLevel = securityLevel;
         this.hourStart = hourStart;
         this.hourEnd = hourEnd;
         this.name = name;
         this.guard = guard;
         this.groep = groep;
         this.area = area;
-    }
-
-    public int getSecurityLevel() {
-        return securityLevel;
-    }
-
-    public void setSecurityLevel(int securityLevel) {
-        this.securityLevel = securityLevel;
     }
 
     public int getHourStart() {
@@ -82,16 +72,4 @@ public class Activity implements Serializable {
         this.area = area;
     }
 
-    @Override
-    public String toString() {
-        return "Activity{" +
-                "securityLevel=" + getSecurityLevel() +
-                ", hourStart=" + getHourStart() +
-                ", hourEnd=" + getHourEnd() +
-                ", name='" + getName() + '\'' +
-                ", guards=" + getGuard() +
-                ", groeps=" + getGroep() +
-                ", area=" + getArea() +
-                '}';
-    }
 }
