@@ -13,8 +13,7 @@ public class Schedule implements Serializable {
     public ObservableList<Guard> guards = FXCollections.observableArrayList();
     public ObservableList<Groep> prisonGroeps = FXCollections.observableArrayList();
 
-    public Schedule(){
-        {
+    public Schedule() {
             Guard Johan = new Guard("Johan Talboom");
             Guard etienne = new Guard("Ethiënne Goossens");
 
@@ -36,7 +35,6 @@ public class Schedule implements Serializable {
             prisonGroeps.add(lowSecurity);
             prisonGroeps.add(mediumSecurity);
             prisonGroeps.add(highSecurity);
-        }
     }
 
 

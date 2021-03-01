@@ -100,15 +100,10 @@ public class Gui extends Application {
         fileChooser.getExtensionFilters().add(extFilter);
 
         MenuItem openFile = new MenuItem("Open...");
-        openFile.setOnAction(event -> { activityController.getSelectedFile(fileChooser); });
-
-        fileMenu.getItems().add(openFile);
         MenuItem saveFile = new MenuItem("Save as...");
-        fileMenu.getItems().add(saveFile);
+        openFile.setOnAction(event -> { activityController.getSelectedFile(fileChooser); });
         saveFile.setOnAction(event -> { activityController.saveSelectedFile(fileChooser); });
-
-
-
+        fileMenu.getItems().addAll(openFile, saveFile);
     }
 
     private HBox getHbox() {
@@ -161,8 +156,6 @@ public class Gui extends Application {
         return addActivityBox;
     }
 
-
-
     private void deleteButtonClicked() {
 
         if (table.getSelectionModel().getSelectedItem() != null) {
@@ -197,7 +190,6 @@ public class Gui extends Application {
 
     public ObservableList<Activity> getActivity(){
         ObservableList<Activity> activities = FXCollections.observableArrayList();
-//        activities.add(new Activity(0,5,9,"OOM",guardComboBox.getValue(),groupComboBox.getValue(),areaComboBox.getValue()));
         table.setItems(activities);
         System.out.println(activities);
         return activities;
