@@ -1,14 +1,15 @@
 package Logic;
 
 import Util.Activity;
-import Util.Area;
 import Util.Groep;
 import Util.Guard;
 import file.fileManager;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class ActivityController {
 
@@ -42,7 +43,7 @@ public class ActivityController {
             clearSchedule();
             for(Activity activity: fileManager.readData(selectedFile)){
                 addItem(activity.getHourStart(),activity.getHourEnd(),activity.getName(),
-                        activity.getGuard(),activity.getGroep(),activity.getArea());
+                        activity.getGuard(),activity.getGroep());
             }
         } else {
             System.out.println("File is not valid");
@@ -54,16 +55,48 @@ public class ActivityController {
         schedule.clearActivities();
     }
 
-    public void addItem(Integer startHour, Integer endHour, String name, Guard guard, Groep groep, Area area){
+    public void deleteItem(Activity activity){
+        table.getItems().remove(activity);
+        schedule.removeActivity(activity);
+    }
+
+    public void addItem(Integer startHour, Integer endHour, String name, Guard guard, Groep groep){
         Activity activity = new Activity();
         activity.setHourStart(startHour);
         activity.setHourEnd(endHour);
         activity.setName(name);
         activity.setGuard(guard);
         activity.setGroep(groep);
-        activity.setArea(area);
+        Activity check = checkOverlap(activity);
+        if (check == null) {
+            table.getItems().add(activity);
+            schedule.addActivity(activity);
+        } else {
+            Alert alertOverlap = new Alert(Alert.AlertType.ERROR);
+            alertOverlap.setTitle("Overlap");
+            alertOverlap.setHeaderText("De activiteit overlapt met onderstaande activiteit:");
+            alertOverlap.setContentText("Activiteit: "+check.getName()+"\n"+
+                    "Groep: "+check.getGroep()+"\n"+
+                    "Guard: "+check.getGuard()+"\n"+
+                    "Start uur: "+check.getHourStart()+"\n"+
+                    "Eind uur: "+check.getHourEnd()+"\n");
+            alertOverlap.showAndWait();
+        }
+    }
 
-        table.getItems().add(activity);
-        schedule.addActivity(activity);
+    public Activity checkOverlap(Activity activity){
+        ArrayList<Activity> activities = schedule.getSchedule().activities;
+        for (Activity activity1 : activities){
+            if (activity1.getGroep() == activity.getGroep()){
+                if (activity1.getHourEnd() > activity.getHourStart())
+                    return activity1;
+            }
+
+            if (activity.getGuard() == activity1.getGuard()){
+                if (activity1.getHourEnd() > activity.getHourStart())
+                    return activity1;
+            }
+        }
+        return null;
     }
 }

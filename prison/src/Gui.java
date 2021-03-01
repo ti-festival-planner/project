@@ -1,7 +1,6 @@
 import Logic.ActivityController;
 import Logic.ScheduleController;
 import Util.Activity;
-import Util.Area;
 import Util.Groep;
 import Util.Guard;
 import javafx.application.Application;
@@ -17,14 +16,17 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.util.Optional;
+
 public class Gui extends Application {
 
+
+    private Stage mainStage;
 
     private VBox mainPaine = new VBox();
     private VBox AddPane = new VBox();
     private TableView<Activity> table;
     private ComboBox<String> activityComboBox = new ComboBox<>();
-    private ComboBox<Area> areaComboBox = new ComboBox<>();
     private ComboBox<Guard> guardComboBox = new ComboBox<>();
     private ComboBox<Groep> groupComboBox = new ComboBox<>();
 
@@ -32,13 +34,14 @@ public class Gui extends Application {
     private TextField hourEnd = new TextField();
 
     private Button deleteButton = new Button("Delete");
+    private Button editButton = new Button("Edit");
     private Button addButton = new Button("Add");
 
     private ActivityController activityController;
     private ScheduleController scheduleController = new ScheduleController();
 
     public void start(Stage mainWindow){
-
+        mainStage = mainWindow;
         HBox addActivityBox = getHbox();
         MenuBar menuBar = getMenuBar();
         TableView table = getTable();
@@ -60,9 +63,6 @@ public class Gui extends Application {
         TableColumn<Activity, String> columnName = new TableColumn<>("Activiy");
         columnName.setCellValueFactory(new PropertyValueFactory<Activity,String>("name"));
 
-        TableColumn<Activity, String> columnArea = new TableColumn<>("Area");
-        columnArea.setCellValueFactory(new PropertyValueFactory<Activity,String>("Area"));
-
         TableColumn<Activity, String> columnGuards = new TableColumn<>("Guard");
         columnGuards.setCellValueFactory(new PropertyValueFactory<Activity,String>("Guard"));
 
@@ -71,14 +71,21 @@ public class Gui extends Application {
 
         table = new TableView<>();
 
-        table.getColumns().addAll(columnStartTime,columnEndTime,columnName,columnArea,columnGuards,columnGroups);
+        table.getColumns().addAll(columnStartTime,columnEndTime,columnName,columnGuards,columnGroups);
+
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                editButton.setDisable(false);
+                deleteButton.setDisable(false);
+
+            }
+        });
 
         return table;
     }
 
     private MenuBar getMenuBar() {
         Menu fileMenu = new Menu("File");
-//        Menu editMenu = new Menu("Edit");
 
         addMenuItems(fileMenu);
 
@@ -98,7 +105,10 @@ public class Gui extends Application {
         fileMenu.getItems().add(openFile);
         MenuItem saveFile = new MenuItem("Save as...");
         fileMenu.getItems().add(saveFile);
-        saveFile.setOnAction(event -> activityController.saveSelectedFile(fileChooser));
+        saveFile.setOnAction(event -> { activityController.saveSelectedFile(fileChooser); });
+
+
+
     }
 
     private HBox getHbox() {
@@ -107,20 +117,24 @@ public class Gui extends Application {
         activityComboBox.setPromptText("Select activity");
         activityComboBox.getItems().addAll(scheduleController.getActivityNames());
 
-        areaComboBox.setPromptText("Select area");
-        areaComboBox.getItems().addAll(scheduleController.getAreas());
-
         guardComboBox.setPromptText("Select guard");
         guardComboBox.getItems().addAll(scheduleController.getGuards());
 
         groupComboBox.setPromptText("Select group");
         groupComboBox.getItems().addAll(scheduleController.getPrisonGroeps());
 
-        addButton.setOnAction(e-> addButtonClicked());
-        deleteButton.setOnAction(e-> deleteButtonClicked());
+        addButton.setOnAction(e-> {activityController.addItem(Integer.parseInt(hourStart.getText()),
+                                        Integer.parseInt(hourEnd.getText()),
+                                        activityComboBox.getValue(),
+                                        guardComboBox.getValue(),
+                                        groupComboBox.getValue());});
+        deleteButton.setOnAction(e-> {deleteButtonClicked();});
+        editButton.setOnAction(e -> {});
+
+        editButton.setDisable(true);
+        deleteButton.setDisable(true);
 
         activityComboBox.setMinWidth(50);
-        areaComboBox.setMinWidth(50);
         guardComboBox.setMinWidth(50);
         groupComboBox.setMinWidth(50);
         hourStart.setMinWidth(50);
@@ -135,12 +149,12 @@ public class Gui extends Application {
 
         addActivityBox.getChildren().addAll(
                 activityComboBox,
-                areaComboBox,
                 guardComboBox,
                 groupComboBox,
                 hourStart,
                 hourEnd,
                 addButton,
+                editButton,
                 deleteButton);
         addActivityBox.setAlignment(Pos.TOP_CENTER);
 
@@ -150,20 +164,36 @@ public class Gui extends Application {
 
 
     private void deleteButtonClicked() {
+
+        if (table.getSelectionModel().getSelectedItem() != null) {
+            Activity activity = table.getSelectionModel().getSelectedItem();
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Weet je het zeker?");
+            alert.setHeaderText("Je staat op het punt de volgende activiteit te verwijderen:");
+            alert.setContentText("Activiteit: "+activity.getName()+"\n"+
+                                 "Groep: "+activity.getGroep()+"\n"+
+                                 "Guard: "+activity.getGuard()+"\n"+
+                                 "Start uur: "+activity.getHourStart()+"\n"+
+                                 "Eind uur: "+activity.getHourEnd()+"\n");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().add(buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                activityController.deleteItem(activity);
+            } else {
+                Alert alertCancel = new Alert(Alert.AlertType.INFORMATION);
+                alertCancel.setTitle("Verwijderen geannuleerd");
+                alertCancel.setHeaderText("Je hebt het verwijderen van de activiteit geannuleerd!");
+                alertCancel.showAndWait();
+            }
+        } else {
+            Alert alertNoSel = new Alert(Alert.AlertType.INFORMATION);
+            alertNoSel.setTitle("Geen activiteit geselecteerd");
+            alertNoSel.setHeaderText("Je hebt hebt geen activiteit geselecteerd!");
+            alertNoSel.showAndWait();
+        }
     }
 
-
-
-
-
-    private void addButtonClicked() {
-        activityController.addItem(Integer.parseInt(hourStart.getText()),
-                Integer.parseInt(hourEnd.getText()),
-                activityComboBox.getValue(),
-                guardComboBox.getValue(),
-                groupComboBox.getValue(),
-                areaComboBox.getValue());
-    }
 
     public ObservableList<Activity> getActivity(){
         ObservableList<Activity> activities = FXCollections.observableArrayList();

@@ -8,20 +8,6 @@ public class Activity implements Serializable {
     public String name;
     public Guard guard;
     public Groep groep;
-    public Area area;
-
-    public Activity(String name) {
-        this.name = name;
-    }
-
-    public Activity() {
-        this.hourStart = hourStart;
-        this.hourEnd = hourEnd;
-        this.name = name;
-        this.guard = guard;
-        this.groep = groep;
-        this.area = area;
-    }
 
     public int getHourStart() {
         return hourStart;
@@ -63,13 +49,5 @@ public class Activity implements Serializable {
         this.groep = groep;
     }
 
-
-    public Area getArea() {
-        return area;
-    }
-
-    public void setArea(Area area) {
-        this.area = area;
-    }
 
 }
