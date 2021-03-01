@@ -1,10 +1,13 @@
-import Data.Activity;
-import Data.Schedule;
+package file;
+
+import Util.Activity;
+import Util.Schedule;
 
 import java.io.*;
 import java.util.ArrayList;
 
-public class JavaIO {
+public class fileManager {
+
 
     public static void writeData(File file, Schedule schedule) {
         try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(file.getAbsolutePath()))) {

@@ -1,16 +1,16 @@
-package Data;
+package Util;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Schedule implements Serializable {
     public ArrayList<Activity> activities = new ArrayList<>();
     public ObservableList<String> activityNames = FXCollections.observableArrayList();
     public ObservableList<Guard> guards = FXCollections.observableArrayList();
-    public ObservableList<Area> areas = FXCollections.observableArrayList();
     public ObservableList<Groep> prisonGroeps = FXCollections.observableArrayList();
 
     public Schedule() {
@@ -28,16 +28,6 @@ public class Schedule implements Serializable {
             activityNames.add("Yard");
             activityNames.add("Lock up");
 
-            Area canteenA= new Area("Canteen A");
-            Area canteenB = new Area("Canteen A");
-            Area canteenC = new Area("Canteen A");
-            Area cellBlockA = new Area("Cellblock A");
-            Area workPlace = new Area("Workspace A");
-
-            areas.addAll(canteenA,canteenB,canteenC);
-            areas.add(cellBlockA);
-            areas.add(workPlace);
-
             Groep lowSecurity = new Groep("low security");
             Groep mediumSecurity = new Groep("Medium security");
             Groep highSecurity = new Groep("High security");
@@ -48,22 +38,23 @@ public class Schedule implements Serializable {
     }
 
 
-    public ObservableList<Groep> getPrisonGroeps() {
-        return prisonGroeps;
-    }
+
 
     public void setPrisonGroeps(ObservableList<Groep> prisonGroeps) {
         this.prisonGroeps = prisonGroeps;
     }
-    
-    public void addActivity(Activity activity){
-        activities.add(activity);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Schedule schedule = (Schedule) o;
+        return Objects.equals(getActivities(), schedule.getActivities());
     }
-    
+
     public ArrayList<Activity> getActivities (){
         return activities;
     }
-    
     public void clearActivities(){
         activities.clear();
     }
