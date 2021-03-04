@@ -13,7 +13,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.util.Optional;
@@ -22,6 +24,7 @@ public class Gui extends Application {
 
 
     private Stage mainStage;
+    private Stage editStage;
 
     private VBox mainPaine = new VBox();
     private VBox AddPane = new VBox();
@@ -124,7 +127,7 @@ public class Gui extends Application {
                                         guardComboBox.getValue(),
                                         groupComboBox.getValue());});
         deleteButton.setOnAction(e-> {deleteButtonClicked();});
-        editButton.setOnAction(e -> {});
+        editButton.setOnAction(e -> {editButtonClicked();});
 
         editButton.setDisable(true);
         deleteButton.setDisable(true);
@@ -154,6 +157,71 @@ public class Gui extends Application {
         addActivityBox.setAlignment(Pos.TOP_CENTER);
 
         return addActivityBox;
+    }
+
+    private void editButtonClicked() {
+
+        if (table.getSelectionModel().getSelectedItem() != null) {
+            Activity activity = table.getSelectionModel().getSelectedItem();
+
+            editStage = new Stage();
+            editStage.initModality(Modality.WINDOW_MODAL);
+
+            ComboBox<String> editactivityComboBox = new ComboBox<>();
+            editactivityComboBox.setPromptText("Select activity");
+            editactivityComboBox.getItems().addAll(scheduleController.getActivityNames());
+            editactivityComboBox.setValue(activity.getName());
+
+            ComboBox<Guard> editguardComboBox = new ComboBox<>();
+            editguardComboBox.setPromptText("Select guard");
+            editguardComboBox.getItems().addAll(scheduleController.getGuards());
+            editguardComboBox.setValue(activity.getGuard());
+
+            ComboBox<Groep> editgroupComboBox = new ComboBox<>();
+            editgroupComboBox.setPromptText("Select group");
+            editgroupComboBox.getItems().addAll(scheduleController.getPrisonGroeps());
+            editgroupComboBox.setValue(activity.getGroep());
+
+            TextField edithourStart = new TextField(""+activity.getHourStart());
+            TextField edithourEnd = new TextField(""+activity.getHourEnd());
+
+            Button cancelButton = new Button("cancel");
+            Button confirmButton = new Button("confirm");
+
+            cancelButton.setOnAction(e -> {editStage.close();});
+            confirmButton.setOnAction(e -> {
+                Activity activityOld = activity;
+                activity.setName(editactivityComboBox.getValue());
+                activity.setGuard(editguardComboBox.getValue());
+                activity.setGroep(editgroupComboBox.getValue());
+                activity.setHourStart(Integer.parseInt(edithourStart.getText()));
+                activity.setHourEnd(Integer.parseInt(edithourEnd.getText()));
+                activityController.editItem(activityOld, activity);
+                int i = table.getItems().indexOf(activityOld);
+                table.getItems().remove(i);
+                table.getItems().add(i, activity);
+                editStage.close();
+            });
+
+            editStage.setScene(
+                new Scene(
+                    new VBox(20,
+                        new Text("Edit prisoner"),
+                        new HBox(20, new Label("Activity: "),   activityComboBox),
+                        new HBox(20, new Label("Guard: "),      guardComboBox),
+                        new HBox(20, new Label("Group: "),      groupComboBox),
+                        new HBox(20, new Label("Start time: "), hourStart),
+                        new HBox(20, new Label("End time: "),   hourEnd),
+                        new HBox(20, cancelButton, confirmButton)
+                    ), 300, 400)
+            );
+            editStage.showAndWait();
+        } else {
+            Alert alertNoSel = new Alert(Alert.AlertType.INFORMATION);
+            alertNoSel.setTitle("Geen activiteit geselecteerd");
+            alertNoSel.setHeaderText("Je hebt hebt geen activiteit geselecteerd!");
+            alertNoSel.showAndWait();
+        }
     }
 
     private void deleteButtonClicked() {
