@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -111,9 +112,15 @@ public class Gui extends Application {
         fileMenu.getItems().addAll(openFile, saveFile);
     }
 
-    private HBox getHbox() {
-        HBox addActivityBox = new HBox();
+    private void clearInput(){
+        activityComboBox.getSelectionModel().clearSelection();
+        guardComboBox.getSelectionModel().clearSelection();
+        groupComboBox.getSelectionModel().clearSelection();
+        hourStart.clear();
+        hourEnd.clear();
+    }
 
+    private void fillBox(){
         activityComboBox.setPromptText("Select activity");
         activityComboBox.getItems().addAll(scheduleController.getActivityNames());
 
@@ -122,15 +129,53 @@ public class Gui extends Application {
 
         groupComboBox.setPromptText("Select group");
         groupComboBox.getItems().addAll(scheduleController.getPrisonGroeps());
+        activityComboBox.isFocused();
+    }
 
-        addButton.setOnAction(e-> {activityController.addItem(Integer.parseInt(hourStart.getText()),
-                                        Integer.parseInt(hourEnd.getText()),
-                                        activityComboBox.getValue(),
-                                        guardComboBox.getValue(),
-                                        groupComboBox.getValue());});
+    private void setActions(){
+        addButton.setOnAction(e-> {
+            try {
+                activityController.addItem(Integer.parseInt(hourStart.getText()),
+                        Integer.parseInt(hourEnd.getText()),
+                        activityComboBox.getValue(),
+                        guardComboBox.getValue(),
+                        groupComboBox.getValue());
+                clearInput();
+            } catch (Exception ne){
+                Alert error = new Alert(Alert.AlertType.ERROR);
+                error.setHeaderText("Er is wat fout gegaan bij het opslaan:");
+                error.setTitle("Error!");
+                error.setContentText("Details error: \n"+ne.getMessage());
+                error.showAndWait();
+            }
+        });
         deleteButton.setOnAction(e-> {deleteButtonClicked();});
         editButton.setOnAction(e -> {editButtonClicked();});
 
+    }
+
+    private HBox getHbox() {
+        HBox addActivityBox = new HBox();
+        fillBox();
+        setActions();
+        addActivityBox.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                try {
+                    activityController.addItem(Integer.parseInt(hourStart.getText()),
+                            Integer.parseInt(hourEnd.getText()),
+                            activityComboBox.getValue(),
+                            guardComboBox.getValue(),
+                            groupComboBox.getValue());
+                    clearInput();
+                } catch (Exception ne) {
+                    Alert error = new Alert(Alert.AlertType.ERROR);
+                    error.setHeaderText("Er is wat fout gegaan bij het opslaan:");
+                    error.setTitle("Error!");
+                    error.setContentText("Details error: \n" + ne.getMessage());
+                    error.showAndWait();
+                }
+            }
+        });
         editButton.setDisable(true);
         deleteButton.setDisable(true);
 
@@ -209,11 +254,11 @@ public class Gui extends Application {
                 new Scene(
                     new VBox(20,
                         new Text("Edit prisoner"),
-                        new HBox(20, new Label("Activity: "),   activityComboBox),
-                        new HBox(20, new Label("Guard: "),      guardComboBox),
-                        new HBox(20, new Label("Group: "),      groupComboBox),
-                        new HBox(20, new Label("Start time: "), hourStart),
-                        new HBox(20, new Label("End time: "),   hourEnd),
+                        new HBox(20, new Label("Activity: "),   editactivityComboBox),
+                        new HBox(20, new Label("Guard: "),      editguardComboBox),
+                        new HBox(20, new Label("Group: "),      editgroupComboBox),
+                        new HBox(20, new Label("Start time: "), edithourStart),
+                        new HBox(20, new Label("End time: "),   edithourEnd),
                         new HBox(20, cancelButton, confirmButton)
                     ), 300, 400)
             );
