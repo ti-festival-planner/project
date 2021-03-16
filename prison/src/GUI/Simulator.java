@@ -20,13 +20,14 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 public class Simulator extends Application {
     private Stage stage;
     private double angle = 0.0;
-    private HashMap<Integer, HashMap<Point2D, Integer>> map;
+    private HashMap<String, HashMap<Point2D, Integer>> map;
     private int height;
     private int width;
     private HashMap<Integer, BufferedImage> tiles;
@@ -122,7 +123,7 @@ public class Simulator extends Application {
                             layermap.put(new Point2D.Double(tilex, tiley), tileInt);
                         }
                     }
-                    map.put(i, layermap);
+                    map.put(layer.getString("name"), layermap);
                 }
             }
             reader.close();
@@ -135,19 +136,15 @@ public class Simulator extends Application {
 
     void draw(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
-        Set<Integer> keys = map.keySet();
-        for (int i = 0; i < map.size(); i++) {
-            if (keys.contains(i)) {
-                HashMap<Point2D, Integer> layer = map.get(i);
-                for (Map.Entry<Point2D, Integer> tile: layer.entrySet()) {
-                    g2d.drawImage(
-                            tiles.get(tile.getValue()),
-                            AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
-                            null);
-                }
+        for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
+            HashMap<Point2D, Integer> layer = layerSet.getValue();
+            for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
+                g2d.drawImage(
+                        tiles.get(tile.getValue()),
+                        AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
+                        null);
             }
         }
-
     }
 
 }
