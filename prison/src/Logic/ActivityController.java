@@ -60,6 +60,13 @@ public class ActivityController {
         schedule.removeActivity(activity);
     }
 
+    public void editItem(Activity activityOld, Activity activityNew) {
+        schedule.editActivity(activityOld, activityNew);
+        int i = table.getItems().indexOf(activityOld);
+        table.getItems().remove(activityOld);
+        table.getItems().add(i, activityNew);
+    }
+
     public void addItem(Integer startHour, Integer endHour, String name, Guard guard, Groep groep){
         Activity activity = new Activity();
         activity.setHourStart(startHour);

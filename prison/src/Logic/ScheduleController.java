@@ -20,6 +20,11 @@ public class ScheduleController {
     public void removeActivity(Activity activity){
         schedule.activities.remove(activity);
     }
+    public void editActivity(Activity activityOld, Activity activityNew) {
+        int i = schedule.activities.indexOf(activityOld);
+        schedule.activities.remove(i);
+        schedule.activities.add(i, activityNew);
+    }
 
     public ObservableList<Groep> getPrisonGroeps() {
         return schedule.prisonGroeps;
