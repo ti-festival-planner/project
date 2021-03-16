@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Simulator extends Application {
     private Stage stage;
@@ -39,6 +40,7 @@ public class Simulator extends Application {
         javafx.scene.canvas.Canvas canvas = new Canvas(1920, 1080);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         draw(g2d);
+
         stage.setScene(new Scene(new Group(canvas)));
         stage.setTitle("Hello Animation");
         stage.show();
@@ -62,7 +64,7 @@ public class Simulator extends Application {
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time.json");
+        File jsonInputFile = new File("./resources/prison_time_the_jason.json");
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
@@ -89,7 +91,7 @@ public class Simulator extends Application {
                     File image2 = new File("./resources/"+imageString);
                     BufferedImage tileImage = ImageIO.read(image2);
                     for (int j = 0; j < jo.getInt("tilecount"); j++) {
-                        tiles.put(gid+j, tileImage.getSubimage(tileWidth * (i%columns), tileHeight * (i/columns), tileWidth, tileHeight));
+                        tiles.put(gid+j, tileImage.getSubimage(tileWidth * (j%columns), tileHeight * (j/columns), tileWidth, tileHeight));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -100,6 +102,8 @@ public class Simulator extends Application {
             map = new HashMap<>();
             for (int i = 0; i < layers.size(); i++) {
                 JsonObject layer = layers.getJsonObject(i);
+                if (layer.getString("type") != "tilelayer")
+                    continue;
                 HashMap<Point2D, Integer> layermap = new HashMap<>();
                 JsonArray chunks = layer.getJsonArray("chunks");
                 for (int j = 0; j < chunks.size(); j++) {
@@ -111,8 +115,10 @@ public class Simulator extends Application {
                     JsonArray data = chunk.getJsonArray("data");
                     for (int k = 0; k < data.size(); k++) {
                         int tileInt = data.getInt(k);
-                        int tilex = max+x+(k%chunkwidth);
-                        int tiley = max+y+(k%chunkheight);
+                        if (tileInt <= 0)
+                            continue;
+                        int tilex = x+(k%chunkwidth);
+                        int tiley = y+(k/chunkheight);
                         layermap.put(new Point2D.Double(tilex, tiley), tileInt);
                     }
                 }
@@ -127,20 +133,15 @@ public class Simulator extends Application {
     }
 
     void draw(Graphics2D g2d) {
+        g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         for (int i = 0; i < map.size(); i++) {
             HashMap<Point2D, Integer> layer = map.get(i);
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    if (layer.get(new Point2D.Double(x,y)) == null)
-                        continue;
-                    if (layer.get(new Point2D.Double(x,y)) < 0)
-                        continue;
-
-                    g2d.drawImage(
-                            tiles.get(layer.get(new Point2D.Double(x,y))),
-                            AffineTransform.getTranslateInstance(x * tileWidth, y * tileHeight),
-                            null);
-                }
+            System.out.println(map);
+            for (Map.Entry<Point2D, Integer> tile: layer.entrySet()) {
+                g2d.drawImage(
+                        tiles.get(tile.getValue()),
+                        AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
+                        null);
             }
         }
 
