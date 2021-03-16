@@ -21,6 +21,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Simulator extends Application {
     private Stage stage;
@@ -102,27 +103,27 @@ public class Simulator extends Application {
             map = new HashMap<>();
             for (int i = 0; i < layers.size(); i++) {
                 JsonObject layer = layers.getJsonObject(i);
-                if (layer.getString("type") != "tilelayer")
-                    continue;
-                HashMap<Point2D, Integer> layermap = new HashMap<>();
-                JsonArray chunks = layer.getJsonArray("chunks");
-                for (int j = 0; j < chunks.size(); j++) {
-                    JsonObject chunk = chunks.getJsonObject(j);
-                    int x = chunk.getInt("x");
-                    int y = chunk.getInt("y");
-                    int chunkheight = chunk.getInt("height");
-                    int chunkwidth = chunk.getInt("width");
-                    JsonArray data = chunk.getJsonArray("data");
-                    for (int k = 0; k < data.size(); k++) {
-                        int tileInt = data.getInt(k);
-                        if (tileInt <= 0)
-                            continue;
-                        int tilex = x+(k%chunkwidth);
-                        int tiley = y+(k/chunkheight);
-                        layermap.put(new Point2D.Double(tilex, tiley), tileInt);
+                if (layer.getString("type").equals("tilelayer")) {
+                    HashMap<Point2D, Integer> layermap = new HashMap<>();
+                    JsonArray chunks = layer.getJsonArray("chunks");
+                    for (int j = 0; j < chunks.size(); j++) {
+                        JsonObject chunk = chunks.getJsonObject(j);
+                        int x = chunk.getInt("x");
+                        int y = chunk.getInt("y");
+                        int chunkheight = chunk.getInt("height");
+                        int chunkwidth = chunk.getInt("width");
+                        JsonArray data = chunk.getJsonArray("data");
+                        for (int k = 0; k < data.size(); k++) {
+                            int tileInt = data.getInt(k);
+                            if (tileInt <= 0)
+                                continue;
+                            int tilex = x+(k%chunkwidth);
+                            int tiley = y+(k/chunkheight);
+                            layermap.put(new Point2D.Double(tilex, tiley), tileInt);
+                        }
                     }
+                    map.put(i, layermap);
                 }
-                map.put(i, layermap);
             }
             reader.close();
         } catch (FileNotFoundException e) {
@@ -134,14 +135,16 @@ public class Simulator extends Application {
 
     void draw(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
+        Set<Integer> keys = map.keySet();
         for (int i = 0; i < map.size(); i++) {
-            HashMap<Point2D, Integer> layer = map.get(i);
-            System.out.println(map);
-            for (Map.Entry<Point2D, Integer> tile: layer.entrySet()) {
-                g2d.drawImage(
-                        tiles.get(tile.getValue()),
-                        AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
-                        null);
+            if (keys.contains(i)) {
+                HashMap<Point2D, Integer> layer = map.get(i);
+                for (Map.Entry<Point2D, Integer> tile: layer.entrySet()) {
+                    g2d.drawImage(
+                            tiles.get(tile.getValue()),
+                            AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
+                            null);
+                }
             }
         }
 
