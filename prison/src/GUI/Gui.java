@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 
 import java.util.Optional;
 
+
 public class Gui extends Application {
 
 
@@ -238,15 +239,13 @@ public class Gui extends Application {
             cancelButton.setOnAction(e -> {editStage.close();});
             confirmButton.setOnAction(e -> {
                 Activity activityOld = activity;
-                activity.setName(editactivityComboBox.getValue());
-                activity.setGuard(editguardComboBox.getValue());
-                activity.setGroep(editgroupComboBox.getValue());
-                activity.setHourStart(Integer.parseInt(edithourStart.getText()));
-                activity.setHourEnd(Integer.parseInt(edithourEnd.getText()));
-                activityController.editItem(activityOld, activity);
-                int i = table.getItems().indexOf(activityOld);
-                table.getItems().remove(i);
-                table.getItems().add(i, activity);
+                Activity activityNew = new Activity();
+                activityNew.setName(editactivityComboBox.getValue());
+                activityNew.setGuard(editguardComboBox.getValue());
+                activityNew.setGroep(editgroupComboBox.getValue());
+                activityNew.setHourStart(Integer.parseInt(edithourStart.getText()));
+                activityNew.setHourEnd(Integer.parseInt(edithourEnd.getText()));
+                activityController.editItem(activityOld, activityNew);
                 editStage.close();
             });
 

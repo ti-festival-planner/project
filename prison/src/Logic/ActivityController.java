@@ -4,6 +4,7 @@ import Util.Activity;
 import Util.Groep;
 import Util.Guard;
 import file.fileManager;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
 
@@ -60,10 +61,22 @@ public class ActivityController {
     }
 
     public void editItem(Activity activityOld, Activity activityNew) {
-        schedule.editActivity(activityOld, activityNew);
-        int i = table.getItems().indexOf(activityOld);
-        table.getItems().remove(activityOld);
-        table.getItems().add(i, activityNew);
+        Activity check = checkOverlapEdit(activityNew, activityOld);
+        if (check == null) {
+            schedule.editActivity(activityOld, activityNew);
+            table.getItems().add(table.getItems().indexOf(activityOld), activityNew);
+            table.getItems().remove(activityOld);
+        } else {
+            Alert alertOverlap = new Alert(Alert.AlertType.ERROR);
+            alertOverlap.setTitle("Overlap");
+            alertOverlap.setHeaderText("De activiteit overlapt met onderstaande activiteit:");
+            alertOverlap.setContentText("Activiteit: "+check.getName()+"\n"+
+                    "Groep: "+check.getGroep()+"\n"+
+                    "Guard: "+check.getGuard()+"\n"+
+                    "Start uur: "+check.getHourStart()+"\n"+
+                    "Eind uur: "+check.getHourEnd()+"\n");
+            alertOverlap.showAndWait();
+        }
     }
 
     public void addItem(Integer startHour, Integer endHour, String name, Guard guard, Groep groep){
@@ -104,6 +117,23 @@ public class ActivityController {
             if (activity.getGuard() == activity1.getGuard()){
                 if (activity1.getHourEnd() > activity.getHourStart())
                     return activity1;
+            }
+        }
+        return null;
+    }
+    public Activity checkOverlapEdit(Activity activity, Activity oldActivity){
+        ArrayList<Activity> activities = schedule.getSchedule().activities;
+        for (Activity activity1 : activities) {
+            if (activity1 != oldActivity) {
+                if (activity1.getGroep() == activity.getGroep()) {
+                    if (activity1.getHourEnd() > activity.getHourStart())
+                        return activity1;
+                }
+
+                if (activity.getGuard() == activity1.getGuard()) {
+                    if (activity1.getHourEnd() > activity.getHourStart())
+                        return activity1;
+                }
             }
         }
         return null;
