@@ -4,7 +4,6 @@ import Util.Activity;
 import Util.Groep;
 import Util.Guard;
 import file.fileManager;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
 
@@ -75,19 +74,22 @@ public class ActivityController {
         activity.setGuard(guard);
         activity.setGroep(groep);
         Activity check = checkOverlap(activity);
+        if (name == null||guard== null||groep == null)
+            throw new IllegalArgumentException("Gegevens missend");
+
+        if (endHour < startHour)
+            throw new IllegalArgumentException("Begin later dan einde");
+
         if (check == null) {
             table.getItems().add(activity);
             schedule.addActivity(activity);
         } else {
-            Alert alertOverlap = new Alert(Alert.AlertType.ERROR);
-            alertOverlap.setTitle("Overlap");
-            alertOverlap.setHeaderText("De activiteit overlapt met onderstaande activiteit:");
-            alertOverlap.setContentText("Activiteit: "+check.getName()+"\n"+
+            throw new IllegalArgumentException("De activiteit overlapt met onderstaande activiteit:" +"\nActiviteit: "+check.getName()+"\n"+
                     "Groep: "+check.getGroep()+"\n"+
                     "Guard: "+check.getGuard()+"\n"+
                     "Start uur: "+check.getHourStart()+"\n"+
                     "Eind uur: "+check.getHourEnd()+"\n");
-            alertOverlap.showAndWait();
+
         }
     }
 
