@@ -2,9 +2,12 @@ package GUI;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
 
@@ -18,32 +21,69 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Simulator extends Application {
     private Stage stage;
-    private double angle = 0.0;
     private HashMap<String, HashMap<Point2D, Integer>> map;
     private int height;
     private int width;
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
-    private int max = 20000;
+    private Point2D cameraPosition = new Point2D.Double(0,0);
+    private javafx.scene.canvas.Canvas canvas;
+
+    //key booleans
+    private BooleanProperty upPressed = new SimpleBooleanProperty();
+    private BooleanProperty rightPressed = new SimpleBooleanProperty();
+    private BooleanProperty leftPressed = new SimpleBooleanProperty();
+    private BooleanProperty downPressed = new SimpleBooleanProperty();
+    private BooleanBinding upRightPressed = upPressed.and(rightPressed);
+    private BooleanBinding downRightPressed = downPressed.and(rightPressed);
+    private BooleanBinding upLeftPressed = upPressed.and(leftPressed);
+    private BooleanBinding downLeftPressed = downPressed.and(leftPressed);
 
     @Override
     public void start(Stage stage) throws Exception {
         loadjsonmap();
         this.stage = stage;
-        javafx.scene.canvas.Canvas canvas = new Canvas(1920, 1080);
+        this.canvas = new Canvas(4000, 4000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+        drawStatic(g2d);
         draw(g2d);
 
-        stage.setScene(new Scene(new Group(canvas)));
+        Scene scene = new Scene(new Group(canvas), 1920, 1080);
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.W) {
+                upPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.S) {
+                downPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.D) {
+                leftPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.A) {
+                rightPressed.setValue(true);
+            }
+        });
+        scene.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.W) {
+                upPressed.setValue(false);
+            }
+            if (event.getCode() == KeyCode.S) {
+                downPressed.setValue(false);
+            }
+            if (event.getCode() == KeyCode.D) {
+                leftPressed.setValue(false);
+            }
+            if (event.getCode() == KeyCode.A) {
+                rightPressed.setValue(false);
+            }
+        });
+
+        stage.setScene(scene);
         stage.setTitle("Hello Animation");
         stage.show();
 
@@ -61,7 +101,37 @@ public class Simulator extends Application {
     }
 
     private void update(double deltaTime) {
-        angle+=0.1;
+        moveCamera(deltaTime);
+
+    }
+
+    /**
+     * moveCamera moves the camera around.
+     * @param deltaTime is the deltaTime.
+     */
+    private void moveCamera(double deltaTime) {
+        double moveSpeed = 400;
+        Point2D direction = new Point2D.Double(0,0);
+        if (upRightPressed.get()) {
+            direction.setLocation(moveSpeed,moveSpeed);
+        } else if (downRightPressed.get()) {
+            direction.setLocation(moveSpeed,-moveSpeed);
+        } else if (upLeftPressed.get()) {
+            direction.setLocation(-moveSpeed,moveSpeed);
+        } else if (downLeftPressed.get()) {
+            direction.setLocation(-moveSpeed,-moveSpeed);
+        } else if (upPressed.get()) {
+            direction.setLocation(0,moveSpeed);
+        } else if (downPressed.get()) {
+            direction.setLocation(0,-moveSpeed);
+        } else if (rightPressed.get()) {
+            direction.setLocation(moveSpeed,0);
+        } else if (leftPressed.get()) {
+            direction.setLocation(-moveSpeed,0);
+        }
+        cameraPosition.setLocation(cameraPosition.getX()+(direction.getX()*deltaTime), cameraPosition.getY()+ (direction.getY()*deltaTime));
+        canvas.setTranslateX(cameraPosition.getX());
+        canvas.setTranslateY(cameraPosition.getY());
     }
 
 
@@ -134,7 +204,7 @@ public class Simulator extends Application {
 
     }
 
-    void draw(Graphics2D g2d) {
+    private void drawStatic(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
             HashMap<Point2D, Integer> layer = layerSet.getValue();
@@ -145,6 +215,10 @@ public class Simulator extends Application {
                         null);
             }
         }
+    }
+
+    private void draw(Graphics2D g2d) {
+
     }
 
 }
