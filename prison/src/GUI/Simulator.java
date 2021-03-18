@@ -1,5 +1,6 @@
 package GUI;
 
+import Util.Prisoner;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -18,32 +19,36 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public class Simulator extends Application {
     private Stage stage;
     private double angle = 0.0;
     private HashMap<String, HashMap<Point2D, Integer>> map;
+    private HashMap<String, JsonObject> rooms;
     private int height;
     private int width;
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
     private int max = 20000;
+    private ArrayList<Prisoner> prisoners;
 
     @Override
+
     public void start(Stage stage) throws Exception {
         loadjsonmap();
+
         this.stage = stage;
-        javafx.scene.canvas.Canvas canvas = new Canvas(1920, 1080);
+        Canvas canvas = new Canvas(1920, 1080);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+        init();
         draw(g2d);
 
         stage.setScene(new Scene(new Group(canvas)));
+
         stage.setTitle("Hello Animation");
         stage.show();
 
@@ -58,15 +63,29 @@ public class Simulator extends Application {
                 draw(g2d);
             }
         }.start();
+
     }
 
     private void update(double deltaTime) {
         angle+=0.1;
+        for (Prisoner prisoner : this.prisoners){
+            prisoner.update();
+        }
     }
+
+    public void init(){
+        if (rooms != null){
+            JsonObject spawn = rooms.get("Spawn");
+            int spawnX = spawn.getInt("x");
+            int spawnY = spawn.getInt("y");
+            this.prisoners = new ArrayList<>();
+            this.prisoners.add(new Prisoner(new Point2D.Double(spawnX,spawnY), angle));
+        }
+}
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time_the_jason.json");
+        File jsonInputFile = new File("./resources/prison_time_the_jason_V2.json");
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
@@ -124,6 +143,13 @@ public class Simulator extends Application {
                         }
                     }
                     map.put(layer.getString("name"), layermap);
+                } else if (layer.getString("type").equals("objectgroup")){
+                    rooms = new HashMap<>();
+                    JsonArray objects = layer.getJsonArray("objects");
+                    for (int j = 0; j < objects.size(); j++){
+                        JsonObject object = objects.getJsonObject(j);
+                        rooms.put(object.getString("name"),object);
+                    }
                 }
             }
             reader.close();
@@ -135,6 +161,7 @@ public class Simulator extends Application {
     }
 
     void draw(Graphics2D g2d) {
+        g2d.setTransform(AffineTransform );
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
             HashMap<Point2D, Integer> layer = layerSet.getValue();
@@ -145,6 +172,12 @@ public class Simulator extends Application {
                         null);
             }
         }
+
+
+        for(Prisoner prisoner : this.prisoners){
+            prisoner.draw(g2d);
+        }
+
     }
 
 }
