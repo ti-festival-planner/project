@@ -54,6 +54,7 @@ public class Simulator extends Application {
         draw(g2d);
 
         Scene scene = new Scene(new Group(canvas), 1920, 1080);
+        //register the key listeners
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.W) {
                 upPressed.setValue(true);
@@ -84,9 +85,10 @@ public class Simulator extends Application {
         });
 
         stage.setScene(scene);
-        stage.setTitle("Hello Animation");
+        stage.setTitle("Simulator");
         stage.show();
 
+        // make and start the animationTimer to update and draw each frame.
         new AnimationTimer() {
             long last = -1;
             @Override
@@ -204,6 +206,10 @@ public class Simulator extends Application {
 
     }
 
+    /**
+     * the drawStatic method draws the static background on screen at the start of the program.
+     * @param g2d The graphics2d object on which to draw the tiles
+     */
     private void drawStatic(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
