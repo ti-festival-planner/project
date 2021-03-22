@@ -267,12 +267,12 @@ public class Gui extends Application {
             cancelButton.setOnAction(e -> {editStage.close();});
             confirmButton.setOnAction(e -> {
                 Activity activityOld = activity;
-                Activity activityNew = new Activity();
-                activityNew.setName(editactivityComboBox.getValue());
-                activityNew.setGuard(editguardComboBox.getValue());
-                activityNew.setGroep(editgroupComboBox.getValue());
-                activityNew.setHourStart(Integer.parseInt(edithourStart.getText()));
-                activityNew.setHourEnd(Integer.parseInt(edithourEnd.getText()));
+                Activity activityNew = new Activity(
+                        Integer.parseInt(edithourStart.getText()),
+                        Integer.parseInt(edithourEnd.getText()),
+                        editactivityComboBox.getValue(),
+                        editguardComboBox.getValue(),
+                        editgroupComboBox.getValue());
                 activityController.editItem(activityOld, activityNew);
                 editStage.close();
             });
@@ -329,13 +329,5 @@ public class Gui extends Application {
             alertNoSel.setHeaderText("Je hebt hebt geen activiteit geselecteerd!");
             alertNoSel.showAndWait();
         }
-    }
-
-    // TODO javadoc here
-    public ObservableList<Activity> getActivity(){
-        ObservableList<Activity> activities = FXCollections.observableArrayList();
-        table.setItems(activities);
-        System.out.println(activities);
-        return activities;
     }
 }
