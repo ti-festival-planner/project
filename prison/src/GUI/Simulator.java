@@ -212,14 +212,25 @@ public class Simulator extends Application {
      */
     private void drawStatic(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
-        for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
-            HashMap<Point2D, Integer> layer = layerSet.getValue();
-            for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
-                g2d.drawImage(
-                        tiles.get(tile.getValue()),
-                        AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
-                        null);
-            }
+        drawLayer(g2d, map.get("Background"));
+        drawLayer(g2d, map.get("Buildings"));
+        drawLayer(g2d, map.get("Path"));
+        drawLayer(g2d, map.get("Furniture"));
+        drawLayer(g2d, map.get("Items"));
+        drawLayer(g2d, map.get("presets"));
+    }
+
+    /**
+     * draws a tile layer
+     * @param g2d the graphics2d object on which to draw the layer
+     * @param layer the layer to draw
+     */
+    private void drawLayer(Graphics2D g2d, HashMap<Point2D, Integer> layer) {
+        for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
+            g2d.drawImage(
+                    tiles.get(tile.getValue()),
+                    AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
+                    null);
         }
     }
 
