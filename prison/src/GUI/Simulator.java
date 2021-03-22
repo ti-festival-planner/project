@@ -18,25 +18,24 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public class Simulator extends Application {
     private Stage stage;
-    private double angle = 0.0;
     private HashMap<String, HashMap<Point2D, Integer>> map;
     private int height;
     private int width;
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
-    private int max = 20000;
 
+    /**
+     * The start method is run at startup to initialise and start all timers
+     * @param stage The main stage to display to the user.
+     */
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         loadjsonmap();
         this.stage = stage;
         javafx.scene.canvas.Canvas canvas = new Canvas(1920, 1080);
@@ -60,12 +59,19 @@ public class Simulator extends Application {
         }.start();
     }
 
+    /**
+     * The update method is run before each frame to update the state of all object in the simulator.
+     * @param deltaTime The time between frames
+     */
     private void update(double deltaTime) {
-        angle+=0.1;
+
     }
 
 
-    public void loadjsonmap() {
+    /**
+     * LoadJsonMap loads the json map from the filesystem and and saves the layers into memory.
+     */
+    private void loadjsonmap() {
         File jsonInputFile = new File("./resources/prison_time_the_jason.json");
         InputStream is;
         try {
@@ -134,7 +140,12 @@ public class Simulator extends Application {
 
     }
 
-    void draw(Graphics2D g2d) {
+
+    /**
+     * The draw method draws the objects on screen each frame.
+     * @param g2d The graphics2d object on which to draw the graphics.
+     */
+    private void draw(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
             HashMap<Point2D, Integer> layer = layerSet.getValue();

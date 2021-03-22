@@ -31,7 +31,6 @@ public class Gui extends Application {
     private Stage editStage;
 
     private VBox mainPaine = new VBox();
-    private VBox AddPane = new VBox();
     private TableView<Activity> table;
     private ComboBox<String> activityComboBox = new ComboBox<>();
     private ComboBox<Guard> guardComboBox = new ComboBox<>();
@@ -47,6 +46,12 @@ public class Gui extends Application {
     private ActivityController activityController;
     private ScheduleController scheduleController = new ScheduleController();
 
+
+    /**
+     * The start method is called on startup and initialises variables and starts timers.
+     * @param mainWindow Is the stage on which the main content is drawn.
+     */
+    @Override
     public void start(Stage mainWindow){
         mainStage = mainWindow;
         HBox addActivityBox = getHbox();
@@ -60,26 +65,29 @@ public class Gui extends Application {
         mainWindow.show();
     }
 
+
+    /**
+     * getTable makes and updates the information in the main table.
+     * @return Returns the table with all the information.
+     */
     private TableView getTable() {
         TableColumn<Activity, Integer> columnStartTime = new TableColumn<>("Starting time");
-        columnStartTime.setCellValueFactory(new PropertyValueFactory<Activity,Integer>("hourStart"));
+        columnStartTime.setCellValueFactory(new PropertyValueFactory<>("hourStart"));
 
         TableColumn<Activity, Integer> columnEndTime = new TableColumn<>("End time");
-        columnEndTime.setCellValueFactory(new PropertyValueFactory<Activity,Integer>("hourEnd"));
+        columnEndTime.setCellValueFactory(new PropertyValueFactory<>("hourEnd"));
 
         TableColumn<Activity, String> columnName = new TableColumn<>("Activiy");
-        columnName.setCellValueFactory(new PropertyValueFactory<Activity,String>("name"));
+        columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         TableColumn<Activity, String> columnGuards = new TableColumn<>("Guard");
-        columnGuards.setCellValueFactory(new PropertyValueFactory<Activity,String>("Guard"));
+        columnGuards.setCellValueFactory(new PropertyValueFactory<>("Guard"));
 
         TableColumn<Activity, String> columnGroups = new TableColumn<>("Groep");
-        columnGroups.setCellValueFactory(new PropertyValueFactory<Activity,String>("Groep"));
+        columnGroups.setCellValueFactory(new PropertyValueFactory<>("Groep"));
 
         table = new TableView<>();
-
         table.getColumns().addAll(columnStartTime,columnEndTime,columnName,columnGuards,columnGroups);
-
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 editButton.setDisable(false);
@@ -87,20 +95,25 @@ public class Gui extends Application {
 
             }
         });
-
         return table;
     }
 
+    /**
+     * getMenubar constructs the menubar and returns it.
+     * @return Returns the menubar.
+     */
     private MenuBar getMenuBar() {
         Menu fileMenu = new Menu("File");
-
         addMenuItems(fileMenu);
-
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu);
         return menuBar;
     }
 
+    /**
+     * addMenuItems adds items to the fileMenu like open and save
+     * @param fileMenu the menubar from getMenubar()
+     */
     private void addMenuItems(Menu fileMenu) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
@@ -113,6 +126,10 @@ public class Gui extends Application {
         fileMenu.getItems().addAll(openFile, saveFile);
     }
 
+
+    /**
+     * clearInput clears to input from the input fields.
+     */
     private void clearInput(){
         activityComboBox.getSelectionModel().clearSelection();
         guardComboBox.getSelectionModel().clearSelection();
@@ -121,6 +138,10 @@ public class Gui extends Application {
         hourEnd.clear();
     }
 
+
+    /**
+     * fillbox fills the comboboxes with the possible options
+     */
     private void fillBox(){
         activityComboBox.setPromptText("Select activity");
         activityComboBox.getItems().addAll(scheduleController.getActivityNames());
@@ -133,6 +154,9 @@ public class Gui extends Application {
         activityComboBox.isFocused();
     }
 
+    /**
+     * setActions registers all the button click events
+     */
     private void setActions(){
         addButton.setOnAction(e-> {
             try {
@@ -152,9 +176,12 @@ public class Gui extends Application {
         });
         deleteButton.setOnAction(e-> {deleteButtonClicked();});
         editButton.setOnAction(e -> {editButtonClicked();});
-
     }
 
+    /**
+     * getHbox constructs a hbox to display at the top of the screen.
+     * @return returns the addactivity box
+     */
     private HBox getHbox() {
         HBox addActivityBox = new HBox();
         fillBox();
@@ -189,7 +216,6 @@ public class Gui extends Application {
         hourStart.setPromptText("Start hour");
         hourEnd.setPromptText("End hour");
 
-
         addActivityBox.setPadding(new Insets(10,10,10,10));
         addActivityBox.setSpacing(10);
 
@@ -207,8 +233,10 @@ public class Gui extends Application {
         return addActivityBox;
     }
 
+    /**
+     * editButtonClicked is the method that handles when the user clicked on the edit button.
+     */
     private void editButtonClicked() {
-
         if (table.getSelectionModel().getSelectedItem() != null) {
             Activity activity = table.getSelectionModel().getSelectedItem();
 
@@ -270,8 +298,10 @@ public class Gui extends Application {
         }
     }
 
+    /**
+     * deleteButtonClicked is the method that handles when the user clicked on the delete button.
+     */
     private void deleteButtonClicked() {
-
         if (table.getSelectionModel().getSelectedItem() != null) {
             Activity activity = table.getSelectionModel().getSelectedItem();
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -301,7 +331,7 @@ public class Gui extends Application {
         }
     }
 
-
+    // TODO javadoc here
     public ObservableList<Activity> getActivity(){
         ObservableList<Activity> activities = FXCollections.observableArrayList();
         table.setItems(activities);
