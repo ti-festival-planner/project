@@ -1,11 +1,13 @@
 package GUI;
 
+import Util.Prisoner;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -21,11 +23,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Simulator extends Application {
     private Stage stage;
     private HashMap<String, HashMap<Point2D, Integer>> map;
+    private int angle = 0;
+    private HashMap<String, JsonObject> rooms;
     private int height;
     private int width;
     private HashMap<Integer, BufferedImage> tiles;
@@ -33,7 +39,7 @@ public class Simulator extends Application {
     private int tileWidth;
     private Point2D cameraPosition = new Point2D.Double(0,0);
     private javafx.scene.canvas.Canvas canvas;
-
+    private ArrayList<Prisoner> prisoners;
     //key booleans
     private BooleanProperty upPressed = new SimpleBooleanProperty();
     private BooleanProperty rightPressed = new SimpleBooleanProperty();
@@ -48,6 +54,7 @@ public class Simulator extends Application {
     public void start(Stage stage) throws Exception {
         loadjsonmap();
         this.stage = stage;
+
         this.canvas = new Canvas(8000, 4000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         drawStatic(g2d);
@@ -107,6 +114,16 @@ public class Simulator extends Application {
 
     }
 
+    private void npcInit(){
+        if (rooms != null){
+            JsonObject spawn = rooms.get("Spawn");
+            int spawnX = spawn.getInt("x");
+            int spawnY = spawn.getInt("y");
+            this.prisoners = new ArrayList<>();
+            this.prisoners.add(new Prisoner(new Point2D.Double(spawnX+6000,spawnY), angle));
+        }
+    }
+
     /**
      * moveCamera moves the camera around.
      * @param deltaTime is the deltaTime.
@@ -138,7 +155,7 @@ public class Simulator extends Application {
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time_the_jason.json");
+        File jsonInputFile = new File("./resources/prison_time_the_jason_V3.json");
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
@@ -196,6 +213,13 @@ public class Simulator extends Application {
                         }
                     }
                     map.put(layer.getString("name"), layermap);
+                } else if (layer.getString("type").equals("objectgroup")){
+                    rooms = new HashMap<>();
+                    JsonArray objects = layer.getJsonArray("objects");
+                    for (int j = 0; j < objects.size(); j++){
+                        JsonObject object = objects.getJsonObject(j);
+                        rooms.put(object.getString("name"),object);
+                    }
                 }
             }
             reader.close();
