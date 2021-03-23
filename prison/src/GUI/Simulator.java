@@ -1,11 +1,13 @@
 package GUI;
 
-import Util.Prisoner;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
 
@@ -19,39 +21,74 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Simulator extends Application {
     private Stage stage;
-    private double angle = 0.0;
     private HashMap<String, HashMap<Point2D, Integer>> map;
-    private HashMap<String, JsonObject> rooms;
     private int height;
     private int width;
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
-    private int max = 20000;
-    private ArrayList<Prisoner> prisoners;
+    private Point2D cameraPosition = new Point2D.Double(0,0);
+    private javafx.scene.canvas.Canvas canvas;
+
+    //key booleans
+    private BooleanProperty upPressed = new SimpleBooleanProperty();
+    private BooleanProperty rightPressed = new SimpleBooleanProperty();
+    private BooleanProperty leftPressed = new SimpleBooleanProperty();
+    private BooleanProperty downPressed = new SimpleBooleanProperty();
+    private BooleanBinding upRightPressed = upPressed.and(rightPressed);
+    private BooleanBinding downRightPressed = downPressed.and(rightPressed);
+    private BooleanBinding upLeftPressed = upPressed.and(leftPressed);
+    private BooleanBinding downLeftPressed = downPressed.and(leftPressed);
 
     @Override
-
     public void start(Stage stage) throws Exception {
         loadjsonmap();
-
         this.stage = stage;
-        Canvas canvas = new Canvas(1920, 1080);
+        this.canvas = new Canvas(4000, 4000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
-        init();
+        drawStatic(g2d);
         draw(g2d);
 
-        stage.setScene(new Scene(new Group(canvas)));
+        Scene scene = new Scene(new Group(canvas), 1920, 1080);
+        //register the key listeners
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.W) {
+                upPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.S) {
+                downPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.D) {
+                leftPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.A) {
+                rightPressed.setValue(true);
+            }
+        });
+        scene.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.W) {
+                upPressed.setValue(false);
+            }
+            if (event.getCode() == KeyCode.S) {
+                downPressed.setValue(false);
+            }
+            if (event.getCode() == KeyCode.D) {
+                leftPressed.setValue(false);
+            }
+            if (event.getCode() == KeyCode.A) {
+                rightPressed.setValue(false);
+            }
+        });
 
-        stage.setTitle("Hello Animation");
+        stage.setScene(scene);
+        stage.setTitle("Simulator");
         stage.show();
 
+        // make and start the animationTimer to update and draw each frame.
         new AnimationTimer() {
             long last = -1;
             @Override
@@ -63,29 +100,45 @@ public class Simulator extends Application {
                 draw(g2d);
             }
         }.start();
-
     }
 
     private void update(double deltaTime) {
-        angle+=0.1;
-        for (Prisoner prisoner : this.prisoners){
-            prisoner.update();
-        }
+        moveCamera(deltaTime);
+
     }
 
-    public void init(){
-        if (rooms != null){
-            JsonObject spawn = rooms.get("Spawn");
-            int spawnX = spawn.getInt("x");
-            int spawnY = spawn.getInt("y");
-            this.prisoners = new ArrayList<>();
-            this.prisoners.add(new Prisoner(new Point2D.Double(spawnX,spawnY), angle));
+    /**
+     * moveCamera moves the camera around.
+     * @param deltaTime is the deltaTime.
+     */
+    private void moveCamera(double deltaTime) {
+        double moveSpeed = 400;
+        Point2D direction = new Point2D.Double(0,0);
+        if (upRightPressed.get()) {
+            direction.setLocation(moveSpeed,moveSpeed);
+        } else if (downRightPressed.get()) {
+            direction.setLocation(moveSpeed,-moveSpeed);
+        } else if (upLeftPressed.get()) {
+            direction.setLocation(-moveSpeed,moveSpeed);
+        } else if (downLeftPressed.get()) {
+            direction.setLocation(-moveSpeed,-moveSpeed);
+        } else if (upPressed.get()) {
+            direction.setLocation(0,moveSpeed);
+        } else if (downPressed.get()) {
+            direction.setLocation(0,-moveSpeed);
+        } else if (rightPressed.get()) {
+            direction.setLocation(moveSpeed,0);
+        } else if (leftPressed.get()) {
+            direction.setLocation(-moveSpeed,0);
         }
-}
+        cameraPosition.setLocation(cameraPosition.getX()+(direction.getX()*deltaTime), cameraPosition.getY()+ (direction.getY()*deltaTime));
+        canvas.setTranslateX(cameraPosition.getX());
+        canvas.setTranslateY(cameraPosition.getY());
+    }
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time_the_jason_V2.json");
+        File jsonInputFile = new File("./resources/prison_time_the_jason.json");
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
@@ -143,13 +196,6 @@ public class Simulator extends Application {
                         }
                     }
                     map.put(layer.getString("name"), layermap);
-                } else if (layer.getString("type").equals("objectgroup")){
-                    rooms = new HashMap<>();
-                    JsonArray objects = layer.getJsonArray("objects");
-                    for (int j = 0; j < objects.size(); j++){
-                        JsonObject object = objects.getJsonObject(j);
-                        rooms.put(object.getString("name"),object);
-                    }
                 }
             }
             reader.close();
@@ -160,23 +206,35 @@ public class Simulator extends Application {
 
     }
 
-    void draw(Graphics2D g2d) {
-        g2d.setTransform(AffineTransform );
+    /**
+     * the drawStatic method draws the static background on screen at the start of the program.
+     * @param g2d The graphics2d object on which to draw the tiles
+     */
+    private void drawStatic(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
-        for (Map.Entry<String, HashMap<Point2D, Integer>> layerSet: map.entrySet() ) {
-            HashMap<Point2D, Integer> layer = layerSet.getValue();
-            for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
-                g2d.drawImage(
-                        tiles.get(tile.getValue()),
-                        AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
-                        null);
-            }
-        }
+        drawLayer(g2d, map.get("Background"));
+        drawLayer(g2d, map.get("Buildings"));
+        drawLayer(g2d, map.get("Path"));
+        drawLayer(g2d, map.get("Furniture"));
+        drawLayer(g2d, map.get("Items"));
+        drawLayer(g2d, map.get("presets"));
+    }
 
-
-        for(Prisoner prisoner : this.prisoners){
-            prisoner.draw(g2d);
+    /**
+     * draws a tile layer
+     * @param g2d the graphics2d object on which to draw the layer
+     * @param layer the layer to draw
+     */
+    private void drawLayer(Graphics2D g2d, HashMap<Point2D, Integer> layer) {
+        for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
+            g2d.drawImage(
+                    tiles.get(tile.getValue()),
+                    AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
+                    null);
         }
+    }
+
+    private void draw(Graphics2D g2d) {
 
     }
 
