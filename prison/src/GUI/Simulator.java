@@ -54,7 +54,8 @@ public class Simulator extends Application {
     public void start(Stage stage) throws Exception {
         loadjsonmap();
         this.stage = stage;
-        this.canvas = new Canvas(8000, 8000);
+
+        this.canvas = new Canvas(8000, 4000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         drawStatic(g2d);
         draw(g2d);
@@ -240,7 +241,7 @@ public class Simulator extends Application {
         drawLayer(g2d, map.get("Path"));
         drawLayer(g2d, map.get("Furniture"));
         drawLayer(g2d, map.get("Items"));
-        drawLayer(g2d, map.get("presets"));
+//        drawLayer(g2d, map.get("presets"));
     }
 
     /**
@@ -252,7 +253,7 @@ public class Simulator extends Application {
         for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
             g2d.drawImage(
                     tiles.get(tile.getValue()),
-                    AffineTransform.getTranslateInstance(tile.getKey().getX() * tileWidth, tile.getKey().getY() * tileHeight),
+                    AffineTransform.getTranslateInstance(6000+(tile.getKey().getX() * tileWidth), tile.getKey().getY() * tileHeight),
                     null);
         }
     }
