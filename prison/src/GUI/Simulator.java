@@ -28,6 +28,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Simulator extends Application {
+
+    private String tilemapName = "prison_time_the_jason_V3.json";
+    private String resourcePath = "./resources/"; // Path naar resources.
+//    private String resourcePath = "D:\\HET\\PATH\\NAAR\\DE\\RESOURCES\\FOLDER\\BIJ\\JASPER"; // Path naar resources bij Jasper.
+
     private Stage stage;
     private HashMap<String, HashMap<Point2D, Integer>> map;
     private int angle = 0;
@@ -155,7 +160,7 @@ public class Simulator extends Application {
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time_the_jason_V3.json");
+        File jsonInputFile = new File(resourcePath+tilemapName);
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
@@ -179,7 +184,7 @@ public class Simulator extends Application {
                 try {
                     System.out.println(jo.getString("image"));
                     String imageString = jo.getString("image");
-                    File image2 = new File("./resources/"+imageString);
+                    File image2 = new File(resourcePath +imageString);
                     BufferedImage tileImage = ImageIO.read(image2);
                     for (int j = 0; j < jo.getInt("tilecount"); j++) {
                         tiles.put(gid+j, tileImage.getSubimage(tileWidth * (j%columns), tileHeight * (j/columns), tileWidth, tileHeight));
