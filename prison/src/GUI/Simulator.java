@@ -5,7 +5,8 @@ import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -21,7 +22,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Simulator extends Application {
     private Stage stage;
@@ -48,7 +50,7 @@ public class Simulator extends Application {
     public void start(Stage stage) throws Exception {
         loadjsonmap();
         this.stage = stage;
-        this.canvas = new Canvas(4000, 4000);
+        this.canvas = new Canvas(8000, 8000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         drawStatic(g2d);
         draw(g2d);
@@ -138,7 +140,7 @@ public class Simulator extends Application {
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time_the_jason.json");
+        File jsonInputFile = new File("./resources/prison_time_the_jason_V3.json");
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
