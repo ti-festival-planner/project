@@ -270,7 +270,8 @@ public class Simulator extends Application {
      * @param point the point to draw around.
      */
     private void drawPoint(Graphics2D g2d, Point2D point) {
-        int viewWidth = 15;
+        Point2D point32 = new Point2D.Double(point.getX()-(point.getX()%32),point.getY()-(point.getY()%32));
+        int viewWidth = 5;
         int viewWidth2 = (int) Math.floor(viewWidth/2);
         int viewHeight = 5;
         int viewHeight2 = (int) Math.floor(viewWidth/2);
@@ -278,9 +279,10 @@ public class Simulator extends Application {
         for (int k = 0; k < 5; k++) {
             HashMap<Point2D, Integer> layer = map.get(layers[k]);
             for (int i = -viewWidth2; i < viewWidth; i++) {
-                double chunkx = point.getX()+i;
+                double chunkx = point32.getX()+i*tileWidth;
                 for (int j = -viewHeight2; i < viewHeight; i++) {
-                    double chunky = point.getX()+j;
+                    double chunky = point32.getY()+j*tileHeight;
+                    if (layer.get(new Point2D.Double(chunkx/tileWidth, chunky/tileHeight)) == null) continue;
                     g2d.drawImage(
                             tiles.get(layer.get(new Point2D.Double(chunkx, chunky))),
                             AffineTransform.getTranslateInstance(6000+(chunkx * tileWidth), chunky * tileHeight),
