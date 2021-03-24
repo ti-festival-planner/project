@@ -57,6 +57,7 @@ public class Simulator extends Application {
 
         this.canvas = new Canvas(8000, 4000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+        npcInit();
         drawStatic(g2d);
         draw(g2d);
 
@@ -76,6 +77,12 @@ public class Simulator extends Application {
                 rightPressed.setValue(true);
             }
         });
+        scene.setOnMouseMoved(event -> {
+            for(Prisoner prisoner : this.prisoners) {
+                prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
+            }});
+
+
         scene.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.W) {
                 upPressed.setValue(false);
@@ -107,10 +114,14 @@ public class Simulator extends Application {
                 draw(g2d);
             }
         }.start();
-    }
+
+        }
 
     private void update(double deltaTime) {
         moveCamera(deltaTime);
+        for (Prisoner prisoner : prisoners){
+            prisoner.update();
+        }
 
     }
 
@@ -155,7 +166,7 @@ public class Simulator extends Application {
 
 
     public void loadjsonmap() {
-        File jsonInputFile = new File("./resources/prison_time_the_jason_V3.json");
+        File jsonInputFile = new File("D:\\AVANS\\FestivalPlanner\\project\\resources\\prison_time_the_jason_V3.json");
         InputStream is;
         try {
             is = new FileInputStream(jsonInputFile);
@@ -179,7 +190,7 @@ public class Simulator extends Application {
                 try {
                     System.out.println(jo.getString("image"));
                     String imageString = jo.getString("image");
-                    File image2 = new File("./resources/"+imageString);
+                    File image2 = new File("D:\\AVANS\\FestivalPlanner\\project\\resources\\"+imageString);
                     BufferedImage tileImage = ImageIO.read(image2);
                     for (int j = 0; j < jo.getInt("tilecount"); j++) {
                         tiles.put(gid+j, tileImage.getSubimage(tileWidth * (j%columns), tileHeight * (j/columns), tileWidth, tileHeight));
@@ -259,6 +270,8 @@ public class Simulator extends Application {
     }
 
     private void draw(Graphics2D g2d) {
+        for (Prisoner prisoner: this.prisoners)
+            prisoner.draw(g2d);
 
     }
 
