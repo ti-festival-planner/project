@@ -42,7 +42,7 @@ public class Simulator extends Application {
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
-    private Point2D cameraPosition = new Point2D.Double(0,0);
+    private Point2D cameraPosition;
     private javafx.scene.canvas.Canvas canvas;
     private ArrayList<Prisoner> prisoners;
     //key booleans
@@ -59,6 +59,7 @@ public class Simulator extends Application {
     public void start(Stage stage) throws Exception {
         loadjsonmap();
         this.stage = stage;
+        this.cameraPosition = new Point2D.Double(-3500,0);
 
         this.canvas = new Canvas(8000, 4000);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
@@ -212,8 +213,8 @@ public class Simulator extends Application {
                             int tileInt = data.getInt(k);
                             if (tileInt <= 0)
                                 continue;
-                            int tilex = x+(k%chunkwidth);
-                            int tiley = y+(k/chunkheight);
+                            int tilex = x + (k % chunkwidth);
+                            int tiley = y + (k / chunkheight);
                             layermap.put(new Point2D.Double(tilex, tiley), tileInt);
                         }
                     }
@@ -260,6 +261,32 @@ public class Simulator extends Application {
                     tiles.get(tile.getValue()),
                     AffineTransform.getTranslateInstance(6000+(tile.getKey().getX() * tileWidth), tile.getKey().getY() * tileHeight),
                     null);
+        }
+    }
+
+    /**
+     * drawpoint is a method that draws the tiles at a specific point
+     * @param g2d the graphics2d object on which to draw the layer
+     * @param point the point to draw around.
+     */
+    private void drawPoint(Graphics2D g2d, Point2D point) {
+        int viewWidth = 15;
+        int viewWidth2 = (int) Math.floor(viewWidth/2);
+        int viewHeight = 5;
+        int viewHeight2 = (int) Math.floor(viewWidth/2);
+        String[] layers = {"Background","Buildings","Path","Furniture","Items"};
+        for (int k = 0; k < 5; k++) {
+            HashMap<Point2D, Integer> layer = map.get(layers[k]);
+            for (int i = -viewWidth2; i < viewWidth; i++) {
+                double chunkx = point.getX()+(i);
+                for (int j = -viewHeight2; i < viewHeight; i++) {
+                    double chunky = point.getX()+(i);
+                    g2d.drawImage(
+                            tiles.get(layer.get(new Point2D.Double(chunkx, chunky))),
+                            AffineTransform.getTranslateInstance(6000+(chunkx * tileWidth), chunky * tileHeight),
+                            null);
+                }
+            }
         }
     }
 
