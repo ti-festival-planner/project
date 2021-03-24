@@ -278,9 +278,9 @@ public class Simulator extends Application {
         for (int k = 0; k < 5; k++) {
             HashMap<Point2D, Integer> layer = map.get(layers[k]);
             for (int i = -viewWidth2; i < viewWidth; i++) {
-                double chunkx = point.getX()+(i);
+                double chunkx = point.getX()+i;
                 for (int j = -viewHeight2; i < viewHeight; i++) {
-                    double chunky = point.getX()+(i);
+                    double chunky = point.getX()+j;
                     g2d.drawImage(
                             tiles.get(layer.get(new Point2D.Double(chunkx, chunky))),
                             AffineTransform.getTranslateInstance(6000+(chunkx * tileWidth), chunky * tileHeight),
