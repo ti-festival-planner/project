@@ -93,15 +93,16 @@ public class Gui extends Application {
 
     private MenuBar getMenuBar() {
         Menu fileMenu = new Menu("File");
+        Menu simMenu = new Menu("Simulate");
 
-        addMenuItems(fileMenu);
+        addMenuItems(fileMenu,simMenu);
 
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(fileMenu);
+        menuBar.getMenus().addAll(fileMenu, simMenu);
         return menuBar;
     }
 
-    private void addMenuItems(Menu fileMenu) {
+    private void addMenuItems(Menu fileMenu, Menu simMenu) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("DAT files (*.dat)", "*.dat");
         fileChooser.getExtensionFilters().add(extFilter);
@@ -111,6 +112,15 @@ public class Gui extends Application {
         openFile.setOnAction(event -> { activityController.getSelectedFile(fileChooser); });
         saveFile.setOnAction(event -> { activityController.saveSelectedFile(fileChooser); });
         fileMenu.getItems().addAll(openFile, saveFile);
+
+        MenuItem startSim = new MenuItem("Start");
+        startSim.setOnAction(event -> { try{ launchSim(); } catch (Exception e){ Alert error = new Alert(Alert.AlertType.ERROR); error.setContentText(e.getMessage()); }});
+        simMenu.getItems().addAll(startSim);
+    }
+
+    private void launchSim() throws Exception {
+        Simulator sim = new Simulator();
+        sim.start(new Stage());
     }
 
     private void clearInput(){

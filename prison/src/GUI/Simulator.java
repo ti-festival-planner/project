@@ -42,7 +42,7 @@ public class Simulator extends Application {
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
-    private Point2D cameraPosition;
+    private Point2D cameraPosition = new Point2D.Double(0,0);
     private javafx.scene.canvas.Canvas canvas;
     private ArrayList<Prisoner> prisoners;
     //key booleans

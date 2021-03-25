@@ -26,7 +26,7 @@ public class Prisoner {
         this.sprites = new ArrayList<>();
 
         try {
-            File image2 = new File("D:\\AVANS\\FestivalPlanner\\project\\resources\\prisoner.png");
+            File image2 = new File("./resources/prisoner.png");
             BufferedImage image = ImageIO.read(image2);
             int w = image.getWidth()/3;
             int h = image.getHeight();
