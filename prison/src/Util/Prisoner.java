@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static GUI.Simulator.resourcePath;
+
 public class Prisoner {
 
     private Point2D position;
@@ -26,7 +28,7 @@ public class Prisoner {
         this.sprites = new ArrayList<>();
 
         try {
-            File image2 = new File("D:\\AVANS\\FestivalPlanner\\project\\resources\\prisoner.png");
+            File image2 = new File(resourcePath+"prisoner.png");
             BufferedImage image = ImageIO.read(image2);
             int w = image.getWidth()/3;
             int h = image.getHeight();

@@ -30,8 +30,8 @@ import java.util.Map;
 public class Simulator extends Application {
 
     private String tilemapName = "prison_time_the_jason_V3.json";
-    private String resourcePath = "./resources/"; // Path naar resources.
-//    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources"; //Path naar resources bij Jasper.
+    public static String resourcePath = "./resources/"; // Path naar resources.
+//    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
     private Stage stage;
     private HashMap<String, HashMap<Point2D, Integer>> map;
