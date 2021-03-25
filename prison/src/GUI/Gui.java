@@ -52,7 +52,7 @@ public class Gui extends Application {
         HBox addActivityBox = getHbox();
         MenuBar menuBar = getMenuBar();
         TableView table = getTable();
-        this.activityController = new ActivityController(table);
+        activityController = new ActivityController(table);
         mainPaine.getChildren().addAll(menuBar,addActivityBox,table);
 
         mainWindow.setScene(new Scene(mainPaine));
@@ -118,10 +118,11 @@ public class Gui extends Application {
         simMenu.getItems().addAll(startSim);
     }
 
-    private void launchSim() throws Exception {
+    private void launchSim(){
         Simulator sim = new Simulator();
-        sim.start(new Stage());
+        sim.loadSched(activityController);
     }
+
 
     private void clearInput(){
         activityComboBox.getSelectionModel().clearSelection();
