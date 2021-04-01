@@ -62,8 +62,12 @@ public class Simulator extends Application {
     private BooleanBinding upLeftPressed = upPressed.and(leftPressed);
     private BooleanBinding downLeftPressed = downPressed.and(leftPressed);
 
+    /**
+     * The start method is run at startup to initialise and start all timers
+     * @param stage The main stage to display to the user.
+     */
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         loadjsonmap();
         this.stage = stage;
         this.cameraPosition = new Point2D.Double(-3500,0);
@@ -132,6 +136,10 @@ public class Simulator extends Application {
 
         }
 
+    /**
+     * The update method is run before each frame to update the state of all object in the simulator.
+     * @param deltaTime The time between frames
+     */
     private void update(double deltaTime) {
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){

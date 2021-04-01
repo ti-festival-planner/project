@@ -2,17 +2,20 @@ package Util;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class Schedule implements Serializable {
+
     public ArrayList<Activity> activities = new ArrayList<>();
     public ObservableList<String> activityNames = FXCollections.observableArrayList();
     public ObservableList<Guard> guards = FXCollections.observableArrayList();
     public ObservableList<Groep> prisonGroeps = FXCollections.observableArrayList();
 
+    /**
+     * Constructs a schedule object
+     */
     public Schedule() {
             Guard Johan = new Guard("Johan Talboom");
             Guard etienne = new Guard("Ethiënne Goossens");
@@ -37,13 +40,6 @@ public class Schedule implements Serializable {
             prisonGroeps.add(highSecurity);
     }
 
-
-
-
-    public void setPrisonGroeps(ObservableList<Groep> prisonGroeps) {
-        this.prisonGroeps = prisonGroeps;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -52,11 +48,17 @@ public class Schedule implements Serializable {
         return Objects.equals(getActivities(), schedule.getActivities());
     }
 
+    /**
+     * @return the activity's
+     */
     public ArrayList<Activity> getActivities (){
         return activities;
     }
+
+    /**
+     * clears the activity's in the schedule.
+     */
     public void clearActivities(){
         activities.clear();
     }
-
 }
