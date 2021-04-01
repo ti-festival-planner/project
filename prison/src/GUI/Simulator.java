@@ -6,9 +6,11 @@ import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
@@ -34,6 +36,9 @@ public class Simulator extends Application {
 //    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
     private Stage stage;
+    private BufferedImage cachedLayers;
+    private int canvasWidth = 5200;
+    private int canvasHeight = 2320;
     private HashMap<String, HashMap<Point2D, Integer>> map;
     private int angle = 0;
     private HashMap<String, JsonObject> rooms;
@@ -61,9 +66,10 @@ public class Simulator extends Application {
         this.stage = stage;
         this.cameraPosition = new Point2D.Double(-3500,0);
 
-        this.canvas = new Canvas(8000, 4000);
+        this.canvas = new Canvas(canvasWidth, canvasHeight);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         npcInit();
+        buildStatic(g2d);
         drawStatic(g2d);
         draw(g2d);
 
@@ -117,6 +123,7 @@ public class Simulator extends Application {
                     last = now;
                 update((now - last) / 1000000000.0);
                 last = now;
+                drawStatic(g2d);
                 draw(g2d);
             }
         }.start();
@@ -171,7 +178,7 @@ public class Simulator extends Application {
     }
 
 
-    public void loadjsonmap() {
+    private void loadjsonmap() {
 
         File jsonInputFile = new File(resourcePath+tilemapName);
         InputStream is;
@@ -250,10 +257,10 @@ public class Simulator extends Application {
     }
 
     /**
-     * the drawStatic method draws the static background on screen at the start of the program.
-     * @param g2d The graphics2d object on which to draw the tiles
+     * buildStatic builds the static background
+     * @param g2d graphics object
      */
-    private void drawStatic(Graphics2D g2d) {
+    private void buildStatic(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         drawLayer(g2d, map.get("Background"));
         drawLayer(g2d, map.get("Buildings"));
@@ -261,6 +268,26 @@ public class Simulator extends Application {
         drawLayer(g2d, map.get("Furniture"));
         drawLayer(g2d, map.get("Items"));
 //        drawLayer(g2d, map.get("presets"));
+
+        WritableImage wim = new WritableImage(canvasWidth, canvasHeight);
+        canvas.snapshot(null, wim);
+        this.cachedLayers = SwingFXUtils.fromFXImage(wim, null);
+
+        // Save as PNG
+//        File file = new File("background.png");
+//        try {
+//            ImageIO.write(this.cachedLayers, "png", file);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    /**
+     * the drawStatic method draws the static background on screen at the start of the program.
+     * @param g2d The graphics2d object on which to draw the tiles
+     */
+    private void drawStatic(Graphics2D g2d) {
+        g2d.drawImage(this.cachedLayers, AffineTransform.getScaleInstance(2,2),null);
     }
 
     /**
