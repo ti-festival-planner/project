@@ -1,6 +1,9 @@
 package GUI;
 
 import Util.Prisoner;
+import Util.PrisonerHigh;
+import Util.PrisonerLow;
+import Util.PrisonerMedium;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
@@ -12,7 +15,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
-
 import javax.imageio.ImageIO;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -30,8 +32,8 @@ import java.util.Map;
 public class Simulator extends Application {
 
     private String tilemapName = "prison_time_the_jason_V3.json";
-    private String resourcePath = "./resources/"; // Path naar resources.
-//    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources"; //Path naar resources bij Jasper.
+//    private String resourcePath = "./resources/"; // Path naar resources.
+    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
     private Stage stage;
     private HashMap<String, HashMap<Point2D, Integer>> map;
@@ -133,12 +135,35 @@ public class Simulator extends Application {
 
     private void npcInit(){
         if (rooms != null){
+            ArrayList<BufferedImage> lowImages = loadPrisonerSprites("prisoner.png");
+            ArrayList<BufferedImage> mediumImages = loadPrisonerSprites("prisonerMedium.png");
+            ArrayList<BufferedImage> highImages = loadPrisonerSprites("prisonerHigh.png");
             JsonObject spawn = rooms.get("Spawn");
             int spawnX = spawn.getInt("x");
             int spawnY = spawn.getInt("y");
             this.prisoners = new ArrayList<>();
-            this.prisoners.add(new Prisoner(new Point2D.Double(spawnX+6000,spawnY), angle));
+            this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY), lowImages));
+            this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6100,spawnY), mediumImages));
+            this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6200,spawnY), highImages));
         }
+    }
+
+    private ArrayList<BufferedImage> loadPrisonerSprites(String filename) {
+        ArrayList<BufferedImage> images = new ArrayList<>();
+        try {
+            File imagefile = new File(this.resourcePath + filename);
+            BufferedImage image = ImageIO.read(imagefile);
+            int w = image.getWidth()/3;
+            int h = image.getHeight();
+            for (int y = 0; y < 1; y++){
+                for (int x = 0; x< 3; x++){
+                    images.add(image.getSubimage(x*w,y* h,w,h));
+                }
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return images;
     }
 
     /**

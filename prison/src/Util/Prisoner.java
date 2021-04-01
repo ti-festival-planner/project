@@ -1,15 +1,12 @@
 package Util;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-public class Prisoner {
+public abstract class Prisoner {
 
     private Point2D position;
 
@@ -18,26 +15,13 @@ public class Prisoner {
 
     private ArrayList<BufferedImage> sprites;
     private Point2D target;
-    public Prisoner(Point2D position, double angle) {
+    Prisoner(Point2D position, ArrayList<BufferedImage> images) {
         this.position = position;
-        this.angle = angle;
+        this.angle = 0;
         this.speed = 3;
         this.target = position;
-        this.sprites = new ArrayList<>();
 
-        try {
-            File image2 = new File("./resources/prisoner.png");
-            BufferedImage image = ImageIO.read(image2);
-            int w = image.getWidth()/3;
-            int h = image.getHeight();
-            for (int y = 0; y < 1; y++){
-                for (int x = 0; x< 3; x++){
-                    this.sprites.add(image.getSubimage(x*w,y* h,w,h));
-                }
-            }
-        } catch (IOException e){
-            e.printStackTrace();
-        }
+        this.sprites = images;
     }
 
     public  void update(){
