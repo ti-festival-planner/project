@@ -33,8 +33,8 @@ import java.util.Map;
 public class Simulator extends Application {
 
     private String tilemapName = "prison_time_the_jason_V3.json";
-//    private String resourcePath = "./resources/"; // Path naar resources.
-    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
+    private String resourcePath = "./resources/"; // Path naar resources.
+//    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
     private Stage stage;
     private BufferedImage cachedLayers;
@@ -71,7 +71,6 @@ public class Simulator extends Application {
         loadjsonmap();
         this.stage = stage;
         this.cameraPosition = new Point2D.Double(-3500,0);
-
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         npcInit();
@@ -95,7 +94,7 @@ public class Simulator extends Application {
                 rightPressed.setValue(true);
             }
         });
-        scene.setOnMouseMoved(event -> {
+        canvas.setOnMouseMoved(event -> {
             for(Prisoner prisoner : this.prisoners) {
                 prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
             }});
@@ -159,7 +158,7 @@ public class Simulator extends Application {
     private void update(double deltaTime) {
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
-            prisoner.update();
+            prisoner.update(deltaTime);
         }
 
     }
