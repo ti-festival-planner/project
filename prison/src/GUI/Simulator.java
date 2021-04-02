@@ -120,12 +120,12 @@ public class Simulator extends Application {
         stage.show();
 
     // make and start the animationTimer to update and draw each frame.
-    new AnimationTimer() {
-        long last = -1;
-        @Override
-        public void handle(long now) {
-            if(last == -1)
-                last = now;
+        new AnimationTimer() {
+            long last = -1;
+            @Override
+            public void handle(long now) {
+                if(last == -1)
+                    last = now;
                 update((now - last) / 1000000000.0);
                 last = now;
                 drawStatic(g2d);
@@ -155,7 +155,12 @@ public class Simulator extends Application {
             }
         }
     }
+
+    int currentblock = 0;
+    float timerFrame = 0;
     private void update(double deltaTime) {
+        timerFrame = timerFrame + (float)deltaTime;
+        currentblock = (int)Math.floor(timerFrame/60);
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
             prisoner.update(deltaTime);
