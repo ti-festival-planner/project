@@ -13,6 +13,10 @@ public abstract class AbstractRoom {
     }
 
     public Point2D getCenter(){
-        return new Point2D.Double((this.Startcoords.getX()+this.Endcoords.getX())/2, (this.Startcoords.getY()+this.Endcoords.getY())/2);
+        double x1 = (this.Startcoords.getX()+6000)/2;
+        double x2 = (this.Endcoords.getX()+6000)/2;
+        double y1 = this.Startcoords.getY()/2;
+        double y2 = this.Endcoords.getY()/2;
+        return new Point2D.Double((x1+x2)/2, (y1+y2)/2);
     }
 }

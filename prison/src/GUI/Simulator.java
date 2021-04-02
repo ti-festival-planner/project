@@ -109,9 +109,20 @@ public class Simulator extends Application {
         });
 //        Shape shape = new Rectangle2D.Double((1632+6000)/2,2912/2, 576, 1024);
 
-        this.prisoners.get(0).setTarget(new Point2D.Double((1632+6000)/2,2912/2));
-        this.prisoners.get(1).setTarget(new Point2D.Double((1632+6000+576)/2,(2912+1024)/2));
-//        this.prisoners.get(2).setTarget(new Point2D.Double(3552, 544));
+//        this.prisoners.get(0).setTarget(workplaces.get(0).getCenter());
+//        this.prisoners.get(1).setTarget(cellblocks.get(0).getCenter());
+//        this.prisoners.get(2).setTarget(cellblocks.get(2).getCenter());
+
+        for (int i = 0; i < prisoners.size(); i++) {
+            for (int j = 0; j < cells.size(); j++) {
+                if (!cells.get(j).getOccupied()) {
+                    this.prisoners.get(i).setTarget(cells.get(j).getCenter());
+                    cells.get(j).setOccupied(true);
+                    break;
+                }
+            }
+        }
+
 
 //        canvas.setOnMouseMoved(event -> {
 //            for(Prisoner prisoner : this.prisoners) {
@@ -172,39 +183,39 @@ public class Simulator extends Application {
             JsonObject object = v;
             if (k.contains("Holding cell"))
                     holdingCells.add(new HoldingCell(
-                            new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                            new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Cafetaria"))
-                    canteens.add(new Canteen(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Common room"))
-                    canteens.add(new Canteen(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Guard room"))
-                    canteens.add(new Canteen(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Kitchen"))
-                    kitchens.add(new Kitchen(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    kitchens.add(new Kitchen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
 
             else if (k.contains("Showers"))
-                    showers.add(new Shower(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    showers.add(new Shower(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
 
             else if (k.contains("Workshop"))
-                    workplaces.add(new Workplace(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    workplaces.add(new Workplace(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
 
             else if (k.contains("Offices"))
-                    offices.add(new Office(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                    offices.add(new Office(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
 
             else if (k.contains("Cell block") || k.contains("Cell Block"))
-                        cellblocks.add(new CellBlock(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                        cellblocks.add(new CellBlock(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                                 ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Cell"))
                 if (!k.contains("Cell block") && !k.contains("Cell Block"))
-                        cells.add(new Room.Cell(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                        cells.add(new Room.Cell(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                                 ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
 
         });
@@ -254,6 +265,9 @@ public class Simulator extends Application {
             int spawnX = spawn.getInt("x");
             int spawnY = spawn.getInt("y");
             this.prisoners = new ArrayList<>();
+            for (int i = 0; i < 40; i++) {
+                this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6000,spawnY), mediumImages));
+            }
             this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY), lowImages));
             this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6100,spawnY), mediumImages));
             this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6200,spawnY), highImages));
