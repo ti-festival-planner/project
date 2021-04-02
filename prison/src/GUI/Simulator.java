@@ -3,41 +3,26 @@ package GUI;
 import Logic.ActivityController;
 
 import Room.*;
-import Util.Activity;
-import Util.Prisoner;
-import Util.Schedule;
-
 import Util.*;
-
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.WritableImage;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Cell;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
-import javax.imageio.ImageIO;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.imageio.*;
+import javax.json.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
+import java.awt.geom.*;
+import java.awt.image.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Simulator extends Application {
 
@@ -121,6 +106,9 @@ public class Simulator extends Application {
                     speed --;
                 }
             }
+            if (event.getCode() == KeyCode.DELETE){
+                speed = 100;
+            }
         });
 //        Shape shape = new Rectangle2D.Double((1632+6000)/2,2912/2, 576, 1024);
 
@@ -128,11 +116,11 @@ public class Simulator extends Application {
 //        this.prisoners.get(1).setTarget(cellblocks.get(0).getCenter());
 //        this.prisoners.get(2).setTarget(cellblocks.get(2).getCenter());
 
-        for (int i = 0; i < prisoners.size(); i++) {
-            for (int j = 0; j < cells.size(); j++) {
-                if (!cells.get(j).getOccupied()) {
-                    this.prisoners.get(i).setTarget(cells.get(j).getCenter());
-                    cells.get(j).setOccupied(true);
+        for (Prisoner prisoner : prisoners) {
+            for (Cell cell : cells) {
+                if (!cell.getOccupied()) {
+                    prisoner.setTarget(cell.getCenter());
+                    cell.setOccupied(true);
                     break;
                 }
             }
@@ -260,6 +248,7 @@ public class Simulator extends Application {
     }
 
     int currentblock = 0;
+    int previousblock = 0;
     float timerFrame = 0;
     private void update(double deltaTime) {
         timerFrame = timerFrame + (float)deltaTime * speed;
@@ -268,9 +257,86 @@ public class Simulator extends Application {
         currentblock = (int)Math.floor(timerFrame / 60);
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
-            prisoner.update(deltaTime);
+            prisoner.update(deltaTime, prisoners);
         }
+        if (currentblock > 6) currentblock = 0;
+        if (currentblock != previousblock) {
+            previousblock = currentblock;
+            updatePrisonerTarget();
+        }
+    }
 
+    private void updatePrisonerTarget() {
+        HashMap<String, String> mapgroep = new HashMap<>();
+        mapgroep.put("Util.PrisonerLow", "low security");
+        mapgroep.put("Util.PrisonerMedium", "Medium security");
+        mapgroep.put("Util.PrisonerHigh", "High security");
+        try {
+            for (Activity activity : this.activities) {
+                if (activity.isNow(currentblock)) {
+                    for (Prisoner prisoner : prisoners) {
+                        if (mapgroep.get(prisoner.getClass().getName()).equals(activity.getGroep().toString())) {
+                            updateTargetLocation(activity, prisoner);
+                        }
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            System.out.println("No activities found!!!");
+        }
+    }
+
+    public void updateTargetLocation(Activity activity, Prisoner prisoner) {
+        switch (activity.getName()) {
+            case "Sleep":
+                for (Cell cell : cells) {
+                    if (!cell.getOccupied()) {
+                        prisoner.setTarget(cell.getCenter());
+                        cell.setOccupied(true);
+                        break;
+                    }
+                }
+                break;
+            case "Eat":
+                for (Canteen canteen : canteens) {
+                    prisoner.setTarget(canteen.getCenter());
+                    break;
+                }
+                break;
+            case "Shower":
+                for (Shower shower : showers) {
+                    prisoner.setTarget(shower.getCenter());
+                    break;
+                }
+                break;
+            case "Free Time":
+                for (CommonRoom commonRoom : commonRooms) {
+                    prisoner.setTarget(commonRoom.getCenter());
+                    break;
+                }
+                break;
+            case "Work":
+                for (Workplace workplace : workplaces) {
+                    prisoner.setTarget(workplace.getCenter());
+                    break;
+                }
+                break;
+            case "Yard":
+                for (Yard yard : yards) {
+                    prisoner.setTarget(yard.getCenter());
+                    break;
+                }
+                break;
+            case "Lock up":
+                for (Cell cell : cells) {
+                    if (!cell.getOccupied()) {
+                        prisoner.setTarget(cell.getCenter());
+                        cell.setOccupied(true);
+                        break;
+                    }
+                }
+                break;
+        }
     }
 
     private void npcInit(){
@@ -283,7 +349,10 @@ public class Simulator extends Application {
             int spawnY = spawn.getInt("y");
             this.prisoners = new ArrayList<>();
             for (int i = 0; i < 40; i++) {
-                this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6000,spawnY), mediumImages));
+                double number = Math.random();
+                if (number<0.33) this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY+(i*100)), lowImages));
+                else if (number<0.66) this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6000,spawnY+(i*100)), mediumImages));
+                else this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6000,spawnY+(i*100)), highImages));
             }
             this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY), lowImages));
             this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6100,spawnY), mediumImages));

@@ -1,5 +1,7 @@
 package Util;
 
+import GUI.Simulator;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
@@ -26,16 +28,32 @@ public abstract class Prisoner {
         this.sprites = images;
     }
 
-    public void update(double deltaTime){
+    public void update(double deltaTime, ArrayList<Prisoner> prisoners){
+        double xDir = this.target.getX() - this.position.getX();
+        double yDir = this.target.getY() - this.position.getY();
+        if (Math.abs(xDir) < 4) xDir = 0;
+        if (Math.abs(yDir) < 4) yDir = 0;
         this.direction = new Point2D.Double(
-                Math.signum(this.target.getX() - this.position.getX())*speed*deltaTime,
-                Math.signum(this.target.getY() - this.position.getY())*speed*deltaTime
+                Math.signum(xDir)*speed* Simulator.speed *deltaTime,
+                Math.signum(yDir)*speed* Simulator.speed*deltaTime
         );
 
         Point2D newPosition = new Point2D.Double(
                 this.position.getX()+this.direction.getX(),
                 this.position.getY()+this.direction.getY()
         );
+
+        int collisionCount = 1;
+        for (Prisoner prisoner : prisoners){
+            if (prisoner == this) continue;
+            if (prisoner.position.distanceSq(position) < 64*64) collisionCount++;
+        }
+        if (collisionCount > 1) {
+            newPosition = new Point2D.Double(
+                    this.position.getX()+(this.direction.getX()/Math.pow(collisionCount, 2)),
+                    this.position.getY()+(this.direction.getY()/Math.pow(collisionCount, 2))
+            );
+        }
         if (this.position.distanceSq(this.target) >= 64) this.position = newPosition;
     }
 
