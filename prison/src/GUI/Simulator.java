@@ -131,7 +131,7 @@ public class Simulator extends Application {
     }.start();
     }
 
-    private ArrayList<Cell> cells = new ArrayList<>();
+    private ArrayList<Room.Cell> cells = new ArrayList<>();
     private ArrayList<Canteen> canteens = new ArrayList<>();
     private ArrayList<CellBlock> cellblocks = new ArrayList<>();
     private ArrayList<CommonRoom> commonRooms = new ArrayList<>();
@@ -180,7 +180,8 @@ public class Simulator extends Application {
                         cellblocks.add(new CellBlock(new Point2D.Double( object.getInt("y"),object.getInt("x"))
                                 ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Cell"))
-                        cellblocks.add(new CellBlock(new Point2D.Double( object.getInt("y"),object.getInt("x"))
+                if (!k.contains("Cell block") && !k.contains("Cell Block"))
+                        cells.add(new Room.Cell(new Point2D.Double( object.getInt("y"),object.getInt("x"))
                                 ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
 
         });
