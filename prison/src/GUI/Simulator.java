@@ -45,6 +45,7 @@ public class Simulator extends Application {
     private String resourcePath = "./resources/"; // Path naar resources.
 //    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
+    public static int speed= 1;
     private Stage stage;
     private BufferedImage cachedLayers;
     private int canvasWidth = 5200;
@@ -105,6 +106,20 @@ public class Simulator extends Application {
             }
             if (event.getCode() == KeyCode.A) {
                 rightPressed.setValue(true);
+            }
+            if (event.getCode() == KeyCode.SPACE){
+                if (speed > 2){
+                    speed = 3;
+                }else {
+                    speed ++;
+                }
+            }
+            if (event.getCode() == KeyCode.SHIFT){
+                if (speed < 2){
+                    speed = 1;
+                }else {
+                    speed --;
+                }
             }
         });
 //        Shape shape = new Rectangle2D.Double((1632+6000)/2,2912/2, 576, 1024);
@@ -247,8 +262,10 @@ public class Simulator extends Application {
     int currentblock = 0;
     float timerFrame = 0;
     private void update(double deltaTime) {
-        timerFrame = timerFrame + (float)deltaTime;
-        currentblock = (int)Math.floor(timerFrame/60);
+        timerFrame = timerFrame + (float)deltaTime * speed;
+
+
+        currentblock = (int)Math.floor(timerFrame / 60);
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
             prisoner.update(deltaTime);
