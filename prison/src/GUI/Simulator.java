@@ -1,22 +1,21 @@
 package GUI;
 
 import Logic.ActivityController;
-import Util.Activity;
-import Util.Prisoner;
-import Util.Schedule;
+import Util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.WritableImage;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
-
 import javax.imageio.ImageIO;
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -25,6 +24,7 @@ import javax.json.JsonReader;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -35,9 +35,12 @@ public class Simulator extends Application {
 
     private String tilemapName = "prison_time_the_jason_V3.json";
     private String resourcePath = "./resources/"; // Path naar resources.
-//    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources"; //Path naar resources bij Jasper.
+//    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
     private Stage stage;
+    private BufferedImage cachedLayers;
+    private int canvasWidth = 5200;
+    private int canvasHeight = 2320;
     private HashMap<String, HashMap<Point2D, Integer>> map;
     private int angle = 0;
     private HashMap<String, JsonObject> rooms;
@@ -60,16 +63,19 @@ public class Simulator extends Application {
     private BooleanBinding downLeftPressed = downPressed.and(leftPressed);
     private ArrayList<Activity> activities;
 
+    /**
+     * The start method is run at startup to initialise and start all timers
+     * @param stage The main stage to display to the user.
+     */
     @Override
-    public void start(Stage stage) throws Exception {
-
+    public void start(Stage stage) {
         loadjsonmap();
         this.stage = stage;
         this.cameraPosition = new Point2D.Double(-3500,0);
-
-        this.canvas = new Canvas(8000, 4000);
+        this.canvas = new Canvas(canvasWidth, canvasHeight);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         npcInit();
+        buildStatic(g2d);
         drawStatic(g2d);
         draw(g2d);
 
@@ -89,10 +95,17 @@ public class Simulator extends Application {
                 rightPressed.setValue(true);
             }
         });
-        scene.setOnMouseMoved(event -> {
-            for(Prisoner prisoner : this.prisoners) {
-                prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
-            }});
+//        Shape shape = new Rectangle2D.Double((1632+6000)/2,2912/2, 576, 1024);
+
+        this.prisoners.get(0).setTarget(new Point2D.Double((1632+6000)/2,2912/2));
+        this.prisoners.get(1).setTarget(new Point2D.Double((1632+6000+576)/2,(2912+1024)/2));
+//        this.prisoners.get(2).setTarget(new Point2D.Double(3552, 544));
+
+//        canvas.setOnMouseMoved(event -> {
+//            for(Prisoner prisoner : this.prisoners) {
+//                prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
+//            }
+//        });
 
 
         scene.setOnKeyReleased(event -> {
@@ -115,18 +128,20 @@ public class Simulator extends Application {
         stage.show();
 
     // make and start the animationTimer to update and draw each frame.
-    new AnimationTimer() {
-        long last = -1;
-        @Override
-        public void handle(long now) {
-            if(last == -1)
+        new AnimationTimer() {
+            long last = -1;
+            @Override
+            public void handle(long now) {
+                if(last == -1)
+                    last = now;
+                update((now - last) / 1000000000.0);
                 last = now;
-            update((now - last) / 1000000000.0);
-            last = now;
-            draw(g2d);
-        }
-    }.start();
+                drawStatic(g2d);
+                draw(g2d);
+            }
+        }.start();
     }
+
 
     /**
      * Checks if there is a schedule to start the simulation
@@ -149,22 +164,50 @@ public class Simulator extends Application {
             }
         }
     }
+
+    int currentblock = 0;
+    float timerFrame = 0;
     private void update(double deltaTime) {
+        timerFrame = timerFrame + (float)deltaTime;
+        currentblock = (int)Math.floor(timerFrame/60);
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
-            prisoner.update();
+            prisoner.update(deltaTime);
         }
 
     }
 
     private void npcInit(){
         if (rooms != null){
+            ArrayList<BufferedImage> lowImages = loadPrisonerSprites("prisoner.png");
+            ArrayList<BufferedImage> mediumImages = loadPrisonerSprites("prisonerMedium.png");
+            ArrayList<BufferedImage> highImages = loadPrisonerSprites("prisonerHigh.png");
             JsonObject spawn = rooms.get("Spawn");
             int spawnX = spawn.getInt("x");
             int spawnY = spawn.getInt("y");
             this.prisoners = new ArrayList<>();
-            this.prisoners.add(new Prisoner(new Point2D.Double(spawnX+6000,spawnY), angle));
+            this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY), lowImages));
+            this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6100,spawnY), mediumImages));
+            this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6200,spawnY), highImages));
         }
+    }
+
+    private ArrayList<BufferedImage> loadPrisonerSprites(String filename) {
+        ArrayList<BufferedImage> images = new ArrayList<>();
+        try {
+            File imagefile = new File(this.resourcePath + filename);
+            BufferedImage image = ImageIO.read(imagefile);
+            int w = image.getWidth()/3;
+            int h = image.getHeight();
+            for (int y = 0; y < 1; y++){
+                for (int x = 0; x< 3; x++){
+                    images.add(image.getSubimage(x*w,y* h,w,h));
+                }
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return images;
     }
 
     /**
@@ -197,7 +240,7 @@ public class Simulator extends Application {
     }
 
 
-    public void loadjsonmap() {
+    private void loadjsonmap() {
 
         File jsonInputFile = new File(resourcePath+tilemapName);
         InputStream is;
@@ -276,10 +319,10 @@ public class Simulator extends Application {
     }
 
     /**
-     * the drawStatic method draws the static background on screen at the start of the program.
-     * @param g2d The graphics2d object on which to draw the tiles
+     * buildStatic builds the static background
+     * @param g2d graphics object
      */
-    private void drawStatic(Graphics2D g2d) {
+    private void buildStatic(Graphics2D g2d) {
         g2d.setTransform(AffineTransform.getScaleInstance(0.5, 0.5));
         drawLayer(g2d, map.get("Background"));
         drawLayer(g2d, map.get("Buildings"));
@@ -287,6 +330,26 @@ public class Simulator extends Application {
         drawLayer(g2d, map.get("Furniture"));
         drawLayer(g2d, map.get("Items"));
 //        drawLayer(g2d, map.get("presets"));
+
+        WritableImage wim = new WritableImage(canvasWidth, canvasHeight);
+        canvas.snapshot(null, wim);
+        this.cachedLayers = SwingFXUtils.fromFXImage(wim, null);
+
+        // Save as PNG
+//        File file = new File("background.png");
+//        try {
+//            ImageIO.write(this.cachedLayers, "png", file);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    /**
+     * the drawStatic method draws the static background on screen at the start of the program.
+     * @param g2d The graphics2d object on which to draw the tiles
+     */
+    private void drawStatic(Graphics2D g2d) {
+        g2d.drawImage(this.cachedLayers, AffineTransform.getScaleInstance(2,2),null);
     }
 
     /**
@@ -334,6 +397,9 @@ public class Simulator extends Application {
     private void draw(Graphics2D g2d) {
         for (Prisoner prisoner: this.prisoners)
             prisoner.draw(g2d);
+
+
+
 
     }
 

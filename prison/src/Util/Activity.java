@@ -3,51 +3,64 @@ import java.io.Serializable;
 
 public class Activity implements Serializable {
 
-    public int hourStart;
-    public int hourEnd;
-    public String name;
-    public Guard guard;
-    public Groep groep;
+    private int hourStart;
+    private int hourEnd;
+    private String name;
+    private Guard guard;
+    private Groep groep;
 
+    /**
+     * Constructs the activity object
+     * @param hourStart the starthour for the item
+     * @param hourEnd the endhour for the item
+     * @param name the name of the item
+     * @param guard the guard assigned to the item
+     * @param groep the groep assigned to the item
+     */
+    public Activity(int hourStart, int hourEnd, String name, Guard guard, Groep groep) {
+        this.hourStart = hourStart;
+        this.hourEnd = hourEnd;
+        this.name = name;
+        this.guard = guard;
+        this.groep = groep;
+    }
+
+    /**
+     * Getters
+     */
     public int getHourStart() {
         return hourStart;
     }
-
-    public void setHourStart(int hourStart) {
-        this.hourStart = hourStart;
-    }
-
     public int getHourEnd() {
         return hourEnd;
     }
-
-    public void setHourEnd(int hourEnd) {
-        this.hourEnd = hourEnd;
-    }
-
     public String getName() {
         return name;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Guard getGuard() {
         return guard;
+    }
+    public Groep getGroep() {
+        return groep;
+    }
+
+    /**
+     * Setters
+     */
+    public void setHourStart(int hourStart) {
+        this.hourStart = hourStart;
+    }
+    public void setHourEnd(int hourEnd) {
+        this.hourEnd = hourEnd;
+    }
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setGuard(Guard guard) {
         this.guard = guard;
     }
-
-    public Groep getGroep() {
-        return groep;
-    }
-
     public void setGroep(Groep groep) {
         this.groep = groep;
     }
-
-
 }
