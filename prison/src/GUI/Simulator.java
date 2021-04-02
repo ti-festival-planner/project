@@ -31,15 +31,11 @@ public class Simulator extends Application {
 //    private String resourcePath = "D:\\AVANS\\FestivalPlanner\\project\\resources\\"; //Path naar resources bij Jasper.
 
     public static int speed= 1;
-    private Stage stage;
     private BufferedImage cachedLayers;
     private int canvasWidth = 5200;
     private int canvasHeight = 2320;
     private HashMap<String, HashMap<Point2D, Integer>> map;
-    private int angle = 0;
     private HashMap<String, JsonObject> rooms;
-    private int height;
-    private int width;
     private HashMap<Integer, BufferedImage> tiles;
     private int tileHeight;
     private int tileWidth;
@@ -64,16 +60,12 @@ public class Simulator extends Application {
     @Override
     public void start(Stage stage) {
         loadjsonmap();
-        this.stage = stage;
         this.cameraPosition = new Point2D.Double(-3500,0);
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         npcInit();
-
         roomInit();
-
         buildStatic(g2d);
-
         drawStatic(g2d);
         draw(g2d);
 
@@ -110,11 +102,6 @@ public class Simulator extends Application {
                 speed = 100;
             }
         });
-//        Shape shape = new Rectangle2D.Double((1632+6000)/2,2912/2, 576, 1024);
-
-//        this.prisoners.get(0).setTarget(workplaces.get(0).getCenter());
-//        this.prisoners.get(1).setTarget(cellblocks.get(0).getCenter());
-//        this.prisoners.get(2).setTarget(cellblocks.get(2).getCenter());
 
         for (Prisoner prisoner : prisoners) {
             for (Cell cell : cells) {
@@ -125,7 +112,6 @@ public class Simulator extends Application {
                 }
             }
         }
-
 
 //        canvas.setOnMouseMoved(event -> {
 //            for(Prisoner prisoner : this.prisoners) {
@@ -252,14 +238,12 @@ public class Simulator extends Application {
     float timerFrame = 0;
     private void update(double deltaTime) {
         timerFrame = timerFrame + (float)deltaTime * speed;
-
-
         currentblock = (int)Math.floor(timerFrame / 60);
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
             prisoner.update(deltaTime, prisoners);
         }
-        if (currentblock > 6) currentblock = 0;
+        if (currentblock > 24) currentblock = 0;
         if (currentblock != previousblock) {
             previousblock = currentblock;
             updatePrisonerTarget();
@@ -415,16 +399,9 @@ public class Simulator extends Application {
         try {
             is = new FileInputStream(jsonInputFile);
             JsonReader reader = Json.createReader(is);
-
             JsonObject root = reader.readObject();
-
-            width = root.getInt("width");
-            height = root.getInt("height");
-
             tiles = new HashMap<>();
-
             JsonArray tilesets = root.getJsonArray("tilesets");
-
             for (int i = 0; i < tilesets.size(); i++) {
                 JsonObject jo = tilesets.getJsonObject(i);
                 int gid = jo.getInt("firstgid");
@@ -528,9 +505,9 @@ public class Simulator extends Application {
     private void drawLayer(Graphics2D g2d, HashMap<Point2D, Integer> layer) {
         for (Map.Entry<Point2D, Integer> tile : layer.entrySet()) {
             g2d.drawImage(
-                    tiles.get(tile.getValue()),
-                    AffineTransform.getTranslateInstance(6000+(tile.getKey().getX() * tileWidth), tile.getKey().getY() * tileHeight),
-                    null);
+                tiles.get(tile.getValue()),
+                AffineTransform.getTranslateInstance(6000+(tile.getKey().getX() * tileWidth), tile.getKey().getY() * tileHeight),
+                null);
         }
     }
 
@@ -565,10 +542,6 @@ public class Simulator extends Application {
     private void draw(Graphics2D g2d) {
         for (Prisoner prisoner: this.prisoners)
             prisoner.draw(g2d);
-
-
-
-
     }
 
 }
