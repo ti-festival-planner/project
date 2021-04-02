@@ -7,7 +7,6 @@ import file.fileManager;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
 import javafx.stage.FileChooser;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -16,21 +15,21 @@ public class ActivityController {
     private TableView<Activity> table;
     private ScheduleController schedule = new ScheduleController();
 
-
+    /**
+     * @param table the table to add and remove data from.
+     */
     public ActivityController(TableView table){
         this.table = table;
     }
 
+    /**
+     * saveSelectedFile saves data to selected file.
+     * @param fileChooser the filechooser to use
+     */
     public void saveSelectedFile(FileChooser fileChooser) {
-        //Set extension filter for text files
-
-
-        //Show save file dialog
         File file = fileChooser.showSaveDialog(null);
-
         if (file != null) {
             fileManager.writeData(file, this.schedule.getSchedule());
-//            saveTextToFile(sampleText, file);
         } else {
             System.out.println("Cancelled");
         }
@@ -54,16 +53,28 @@ public class ActivityController {
         }
     }
 
+    /**
+     * clearSchedule clears the schedule.
+     */
     private void clearSchedule(){
         table.getItems().clear();
         schedule.clearActivities();
     }
 
+    /**
+     * deleteItem deletes item from the table and schedule
+     * @param activity activity to delete
+     */
     public void deleteItem(Activity activity){
         table.getItems().remove(activity);
         schedule.removeActivity(activity);
     }
 
+    /**
+     * editItem edits an item in the table/schedule
+     * @param activityOld old item to be replaced
+     * @param activityNew new item to replace with
+     */
     public void editItem(Activity activityOld, Activity activityNew) {
         Activity check = checkOverlapEdit(activityNew, activityOld);
         if (check == null) {
@@ -83,20 +94,21 @@ public class ActivityController {
         }
     }
 
+    /**
+     * addItem adds an item to the table/schedule
+     * @param startHour the starthour for the item
+     * @param endHour the endhour for the item
+     * @param name the name of the item
+     * @param guard the guard assigned to the item
+     * @param groep the groep assigned to the item
+     */
     public void addItem(Integer startHour, Integer endHour, String name, Guard guard, Groep groep){
-        Activity activity = new Activity();
-        activity.setHourStart(startHour);
-        activity.setHourEnd(endHour);
-        activity.setName(name);
-        activity.setGuard(guard);
-        activity.setGroep(groep);
+        Activity activity = new Activity(startHour, endHour, name, guard, groep);
         Activity check = checkOverlap(activity);
         if (name == null||guard== null||groep == null)
             throw new IllegalArgumentException("Gegevens missend");
-
         if (endHour < startHour)
             throw new IllegalArgumentException("Begin later dan einde");
-
         if (check == null) {
             table.getItems().add(activity);
             schedule.addActivity(activity);
@@ -106,11 +118,15 @@ public class ActivityController {
                     "Guard: "+check.getGuard()+"\n"+
                     "Start uur: "+check.getHourStart()+"\n"+
                     "Eind uur: "+check.getHourEnd()+"\n");
-
         }
     }
 
-    public Activity checkOverlap(Activity activity){
+    /**
+     * checkOverlap checks the overlap between activity's
+     * @param activity the activity to check
+     * @return null if no conflict, the activity when there is a conflict
+     */
+    private Activity checkOverlap(Activity activity){
         ArrayList<Activity> activities = schedule.getSchedule().activities;
         for (Activity activity1 : activities){
             if (activity1.getGroep() == activity.getGroep()){
@@ -125,7 +141,11 @@ public class ActivityController {
         }
         return null;
     }
-    public Activity checkOverlapEdit(Activity activity, Activity oldActivity){
+
+    /**
+     * checkOverlapEdit checks overlap like checkOverlap but for edits
+     */
+    private Activity checkOverlapEdit(Activity activity, Activity oldActivity){
         ArrayList<Activity> activities = schedule.getSchedule().activities;
         for (Activity activity1 : activities) {
             if (activity1 != oldActivity) {
@@ -133,7 +153,6 @@ public class ActivityController {
                     if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
                         return activity1;
                 }
-
                 if (activity.getGuard() == activity1.getGuard()) {
                     if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
                         return activity1;

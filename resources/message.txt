@@ -1,0 +1,56 @@
+import java.awt.*;
+import java.awt.geom.*;
+import javafx.application.Application;
+import static javafx.application.Application.launch;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.CycleMethod;
+import javafx.stage.Stage;
+import org.jfree.fx.FXGraphics2D;
+import javafx.scene.canvas.Canvas;
+
+public class GradientPaintExercise extends Application {
+    private Canvas canvas;
+    private Point2D point;
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        BorderPane mainPane = new BorderPane();
+        canvas = new Canvas(1920, 1080);
+        point = new Point2D.Double(1920/2, 1080/2);
+        mainPane.setCenter(canvas);
+        primaryStage.setScene(new Scene(mainPane));
+        primaryStage.setTitle("GradientPaint");
+        primaryStage.show();
+        draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
+        canvas.setOnMouseDragged(e -> {
+            point = new Point2D.Double(e.getX(), e.getY());
+            draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
+        });
+    }
+    
+    
+    public void draw(FXGraphics2D graphics) {
+        graphics.setTransform(new AffineTransform());
+        graphics.setBackground(Color.white);
+        graphics.clearRect(0, 0, (int)canvas.getWidth(), (int)canvas.getHeight());
+        float[] frac = {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+        Color[] colors = new Color[frac.length];
+        for (int i = 0; i < colors.length; i++) {
+            colors[i] = Color.getHSBColor(frac[i], 1.0f, 1.0f);
+        }
+
+        RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
+                1920/2, 1080/2, Math.min(1920,1080), (float) point.getX(), (float) point.getY(),
+                frac, colors, MultipleGradientPaint.CycleMethod.REPEAT);
+        graphics.setPaint(radialGradientPaint);
+        graphics.fill(new Rectangle2D.Double(0,0,1920,1080));
+    }
+    
+    
+    
+    public static void main(String[] args) {
+        launch(GradientPaintExercise.class);
+    }
+
+}
