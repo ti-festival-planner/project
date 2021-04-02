@@ -35,10 +35,10 @@ public class ActivityController {
         }
     }
 
-    /**
-     * getSelectedFile loads data from the selected file.
-     * @param fileChooser the filechooser to use
-     */
+    public ScheduleController getSchedule(){
+        return schedule;
+    }
+
     public void getSelectedFile(FileChooser fileChooser) {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null){
@@ -130,12 +130,12 @@ public class ActivityController {
         ArrayList<Activity> activities = schedule.getSchedule().activities;
         for (Activity activity1 : activities){
             if (activity1.getGroep() == activity.getGroep()){
-                if (activity1.getHourEnd() > activity.getHourStart())
+                if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
                     return activity1;
             }
 
             if (activity.getGuard() == activity1.getGuard()){
-                if (activity1.getHourEnd() > activity.getHourStart())
+                if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
                     return activity1;
             }
         }
@@ -150,11 +150,11 @@ public class ActivityController {
         for (Activity activity1 : activities) {
             if (activity1 != oldActivity) {
                 if (activity1.getGroep() == activity.getGroep()) {
-                    if (activity1.getHourEnd() > activity.getHourStart())
+                    if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
                         return activity1;
                 }
                 if (activity.getGuard() == activity1.getGuard()) {
-                    if (activity1.getHourEnd() > activity.getHourStart())
+                    if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
                         return activity1;
                 }
             }

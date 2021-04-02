@@ -1,9 +1,7 @@
 package GUI;
 
-import Util.Prisoner;
-import Util.PrisonerHigh;
-import Util.PrisonerLow;
-import Util.PrisonerMedium;
+import Logic.ActivityController;
+import Util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
@@ -14,6 +12,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.WritableImage;
+import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.jfree.fx.FXGraphics2D;
@@ -61,6 +60,7 @@ public class Simulator extends Application {
     private BooleanBinding downRightPressed = downPressed.and(rightPressed);
     private BooleanBinding upLeftPressed = upPressed.and(leftPressed);
     private BooleanBinding downLeftPressed = downPressed.and(leftPressed);
+    private ArrayList<Activity> activities;
 
     /**
      * The start method is run at startup to initialise and start all timers
@@ -120,26 +120,42 @@ public class Simulator extends Application {
         stage.setTitle("Simulator");
         stage.show();
 
-        // make and start the animationTimer to update and draw each frame.
-        new AnimationTimer() {
-            long last = -1;
-            @Override
-            public void handle(long now) {
-                if(last == -1)
-                    last = now;
+    // make and start the animationTimer to update and draw each frame.
+    new AnimationTimer() {
+        long last = -1;
+        @Override
+        public void handle(long now) {
+            if(last == -1)
+                last = now;
                 update((now - last) / 1000000000.0);
                 last = now;
                 drawStatic(g2d);
                 draw(g2d);
             }
         }.start();
-
-        }
+    }
 
     /**
-     * The update method is run before each frame to update the state of all object in the simulator.
-     * @param deltaTime The time between frames
+     * Checks if there is a schedule to start the simulation
+     * @param activityController ActivityController
      */
+    public void loadSched(ActivityController activityController){
+        Schedule schedule = activityController.getSchedule().getSchedule();
+        if (schedule.activities.size() == 0){
+            Alert noSched = new Alert(Alert.AlertType.ERROR);
+            noSched.setTitle("Geen activiteiten");
+            noSched.setHeaderText("geen geplande activiteiten gevonden");
+            noSched.setContentText("De simulatie heeft geen geplande activiteiten gevonden, maak eerst een activeit aan en propeer het opnieuw!");
+            noSched.showAndWait();
+        }else {
+            activities = schedule.activities;
+            try {
+                this.start(new Stage());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private void update(double deltaTime) {
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
