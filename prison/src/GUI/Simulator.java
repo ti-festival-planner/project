@@ -24,6 +24,7 @@ import javax.json.JsonReader;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -94,10 +95,17 @@ public class Simulator extends Application {
                 rightPressed.setValue(true);
             }
         });
-        canvas.setOnMouseMoved(event -> {
-            for(Prisoner prisoner : this.prisoners) {
-                prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
-            }});
+//        Shape shape = new Rectangle2D.Double((1632+6000)/2,2912/2, 576, 1024);
+
+        this.prisoners.get(0).setTarget(new Point2D.Double((1632+6000)/2,2912/2));
+        this.prisoners.get(1).setTarget(new Point2D.Double((1632+6000+576)/2,(2912+1024)/2));
+//        this.prisoners.get(2).setTarget(new Point2D.Double(3552, 544));
+
+//        canvas.setOnMouseMoved(event -> {
+//            for(Prisoner prisoner : this.prisoners) {
+//                prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
+//            }
+//        });
 
 
         scene.setOnKeyReleased(event -> {
@@ -133,6 +141,7 @@ public class Simulator extends Application {
             }
         }.start();
     }
+
 
     /**
      * Checks if there is a schedule to start the simulation
@@ -388,6 +397,9 @@ public class Simulator extends Application {
     private void draw(Graphics2D g2d) {
         for (Prisoner prisoner: this.prisoners)
             prisoner.draw(g2d);
+
+
+
 
     }
 

@@ -36,13 +36,14 @@ public abstract class Prisoner {
                 this.position.getX()+this.direction.getX(),
                 this.position.getY()+this.direction.getY()
         );
-
-        this.position = newPosition;
+        if (this.position.distanceSq(this.target) >= 64) this.position = newPosition;
     }
 
     public void draw(Graphics2D g2d){
         int centerX = sprites.get(0).getWidth()/2;
         int centerY = sprites.get(0).getHeight()/2;
+
+        debugDraw(g2d);
 
         AffineTransform tx = new AffineTransform();
         tx.translate(position.getX() - centerX, position.getY()-centerY);
