@@ -6,19 +6,16 @@ import Room.*;
 import Util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.WritableImage;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import org.jfree.fx.FXGraphics2D;
 import javax.imageio.*;
 import javax.json.*;
@@ -137,7 +134,7 @@ public class Simulator extends Application {
         stage.setTitle("Simulator");
         stage.show();
 
-    // make and start the animationTimer to update and draw each frame.
+        // make and start the animationTimer to update and draw each frame.
         timer = new AnimationTimer() {
             long last = -1;
             @Override
@@ -165,7 +162,6 @@ public class Simulator extends Application {
     private ArrayList<Shower> showers = new ArrayList<>();
     private ArrayList<Workplace> workplaces = new ArrayList<>();
     private ArrayList<Yard> yards = new ArrayList<>();
-
 
     @Override
     public void stop() throws Exception {

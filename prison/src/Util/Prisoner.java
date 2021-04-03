@@ -11,14 +11,14 @@ import java.util.ArrayList;
 
 public abstract class Prisoner {
 
-    private Point2D position;
+    protected Point2D position;
     private Point2D direction;
 
     private double speed;
 
     private boolean panic;
 
-    private ArrayList<BufferedImage> sprites;
+    protected ArrayList<BufferedImage> sprites;
     private Point2D target;
     Prisoner(Point2D position, ArrayList<BufferedImage> images) {
         this.position = position;
@@ -74,7 +74,7 @@ public abstract class Prisoner {
         int centerX = sprites.get(0).getWidth()/2;
         int centerY = sprites.get(0).getHeight()/2;
 
-        debugDraw(g2d);
+//        debugDraw(g2d);
 
         AffineTransform tx = new AffineTransform();
         tx.translate(position.getX() - centerX, position.getY()-centerY);
@@ -87,6 +87,7 @@ public abstract class Prisoner {
     }
 
     public void debugDraw(Graphics2D g2d) {
+        g2d.setColor(Color.BLACK);
         Shape cursor = new Ellipse2D.Double(this.target.getX()-16, this.target.getY()-16, 32, 32);
         g2d.draw(cursor);
     }
