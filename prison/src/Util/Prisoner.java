@@ -14,7 +14,6 @@ public abstract class Prisoner {
     private Point2D position;
     private Point2D direction;
 
-    private double angle;
     private double speed;
 
     private boolean panic;
@@ -23,7 +22,6 @@ public abstract class Prisoner {
     private Point2D target;
     Prisoner(Point2D position, ArrayList<BufferedImage> images) {
         this.position = position;
-        this.angle = 0;
         this.speed = 90;
         this.target = position;
         this.direction = new Point2D.Double(0,0);

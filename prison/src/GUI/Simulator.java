@@ -8,6 +8,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
@@ -42,6 +43,7 @@ public class Simulator extends Application {
     private Point2D cameraPosition = new Point2D.Double(0,0);
     private javafx.scene.canvas.Canvas canvas;
     private ArrayList<Prisoner> prisoners;
+    private ArrayList<PrisonerGuard> guards;
     //key booleans
     private BooleanProperty upPressed = new SimpleBooleanProperty();
     private BooleanProperty rightPressed = new SimpleBooleanProperty();
@@ -154,11 +156,11 @@ public class Simulator extends Application {
         }.start();
     }
 
-    private ArrayList<Room.Cell> cells = new ArrayList<>();
+    private ArrayList<Cell> cells = new ArrayList<>();
     private ArrayList<Canteen> canteens = new ArrayList<>();
     private ArrayList<CellBlock> cellblocks = new ArrayList<>();
     private ArrayList<CommonRoom> commonRooms = new ArrayList<>();
-    private ArrayList<CommonRoom> guardRoom = new ArrayList<>();
+    private ArrayList<GuardRoom> guardRoom = new ArrayList<>();
     private ArrayList<HoldingCell> holdingCells = new ArrayList<>();
     private ArrayList<Kitchen> kitchens = new ArrayList<>();
     private ArrayList<Office> offices = new ArrayList<>();
@@ -178,10 +180,10 @@ public class Simulator extends Application {
                     canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Common room"))
-                    canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
+                    commonRooms.add(new CommonRoom(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Guard room"))
-                    canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
+                    guardRoom.add(new GuardRoom(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Kitchen"))
                     kitchens.add(new Kitchen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
@@ -215,8 +217,11 @@ public class Simulator extends Application {
      * Checks if there is a schedule to start the simulation
      * @param activityController ActivityController
      */
+
+    private ObservableList<Guard> schedguards;
     public void loadSched(ActivityController activityController){
         Schedule schedule = activityController.getSchedule().getSchedule();
+        schedguards = activityController.getSchedule().getGuards();
         if (schedule.activities.size() == 0){
             Alert noSched = new Alert(Alert.AlertType.ERROR);
             noSched.setTitle("Geen activiteiten");
@@ -262,6 +267,11 @@ public class Simulator extends Application {
                     for (Prisoner prisoner : prisoners) {
                         if (mapgroep.get(prisoner.getClass().getName()).equals(activity.getGroep().toString())) {
                             updateTargetLocation(activity, prisoner);
+                        }
+                    }
+                    for (PrisonerGuard guard : guards){
+                        if (mapgroep.get(guard.getClass().getName()).equals(activity.getGuard().getName())){
+                            updateTargetLocation(activity, guard);
                         }
                     }
                 }
@@ -329,6 +339,7 @@ public class Simulator extends Application {
             ArrayList<BufferedImage> lowImages = loadPrisonerSprites("prisoner.png");
             ArrayList<BufferedImage> mediumImages = loadPrisonerSprites("prisonerMedium.png");
             ArrayList<BufferedImage> highImages = loadPrisonerSprites("prisonerHigh.png");
+            ArrayList<BufferedImage> guardImages = loadPrisonerSprites("guard.png");
             JsonObject spawn = rooms.get("Spawn");
             int spawnX = spawn.getInt("x");
             int spawnY = spawn.getInt("y");
@@ -339,6 +350,20 @@ public class Simulator extends Application {
                 else if (number<0.66) this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6000,spawnY+(i*100)), mediumImages));
                 else this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6000,spawnY+(i*100)), highImages));
             }
+            this.guards = new ArrayList<>();
+            int maxGRoom = guardRoom.size();
+            int counter = 0;
+            for (Guard guard : schedguards){
+                if (counter == maxGRoom)
+                    counter = 0;
+                this.guards.add(new PrisonerGuard(
+                        new Point2D.Double(((guardRoom.get(counter).Startcoords.getX()+guardRoom.get(counter).Endcoords.getX())/2),
+                                ((guardRoom.get(counter).Startcoords.getY()+guardRoom.get(counter).Endcoords.getY())/2)),
+                        guardImages,
+                        guard.getName()));
+                counter++;
+            }
+
             this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY), lowImages));
             this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6100,spawnY), mediumImages));
             this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6200,spawnY), highImages));
