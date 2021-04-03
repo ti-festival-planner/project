@@ -106,7 +106,7 @@ public class Simulator extends Application {
         for (Prisoner prisoner : prisoners) {
             for (Cell cell : cells) {
                 if (!cell.getOccupied()) {
-                    prisoner.setTarget(cell.getCenter());
+                    prisoner.setTarget(cell.getPlace());
                     cell.setOccupied(true);
                     break;
                 }
@@ -247,6 +247,7 @@ public class Simulator extends Application {
         if (currentblock != previousblock) {
             previousblock = currentblock;
             updatePrisonerTarget();
+            System.out.println("Volgend uur: "+currentblock);
         }
     }
 
@@ -275,7 +276,7 @@ public class Simulator extends Application {
             case "Sleep":
                 for (Cell cell : cells) {
                     if (!cell.getOccupied()) {
-                        prisoner.setTarget(cell.getCenter());
+                        prisoner.setTarget(cell.getPlace());
                         cell.setOccupied(true);
                         break;
                     }
@@ -283,38 +284,38 @@ public class Simulator extends Application {
                 break;
             case "Eat":
                 for (Canteen canteen : canteens) {
-                    prisoner.setTarget(canteen.getCenter());
+                    prisoner.setTarget(canteen.getPlace());
                     break;
                 }
                 break;
             case "Shower":
                 for (Shower shower : showers) {
-                    prisoner.setTarget(shower.getCenter());
+                    prisoner.setTarget(shower.getPlace());
                     break;
                 }
                 break;
             case "Free Time":
                 for (CommonRoom commonRoom : commonRooms) {
-                    prisoner.setTarget(commonRoom.getCenter());
+                    prisoner.setTarget(commonRoom.getPlace());
                     break;
                 }
                 break;
             case "Work":
                 for (Workplace workplace : workplaces) {
-                    prisoner.setTarget(workplace.getCenter());
+                    prisoner.setTarget(workplace.getPlace());
                     break;
                 }
                 break;
             case "Yard":
                 for (Yard yard : yards) {
-                    prisoner.setTarget(yard.getCenter());
+                    prisoner.setTarget(yard.getPlace());
                     break;
                 }
                 break;
             case "Lock up":
                 for (Cell cell : cells) {
                     if (!cell.getOccupied()) {
-                        prisoner.setTarget(cell.getCenter());
+                        prisoner.setTarget(cell.getPlace());
                         cell.setOccupied(true);
                         break;
                     }

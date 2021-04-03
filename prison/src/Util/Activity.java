@@ -68,6 +68,6 @@ public class Activity implements Serializable {
      * Methods
      */
     public boolean isNow(int hour) {
-        return hour>=this.hourStart && hour<this.hourEnd;
+        return hour>=this.hourStart && hour<=this.hourEnd;
     }
 }

@@ -17,6 +17,8 @@ public abstract class Prisoner {
     private double angle;
     private double speed;
 
+    private boolean panic;
+
     private ArrayList<BufferedImage> sprites;
     private Point2D target;
     Prisoner(Point2D position, ArrayList<BufferedImage> images) {
@@ -26,6 +28,7 @@ public abstract class Prisoner {
         this.target = position;
         this.direction = new Point2D.Double(0,0);
         this.sprites = images;
+        this.panic = false;
     }
 
     public void update(double deltaTime, ArrayList<Prisoner> prisoners){
@@ -34,25 +37,37 @@ public abstract class Prisoner {
         if (Math.abs(xDir) < 4) xDir = 0;
         if (Math.abs(yDir) < 4) yDir = 0;
         this.direction = new Point2D.Double(
-                Math.signum(xDir)*speed* Simulator.speed *deltaTime,
-                Math.signum(yDir)*speed* Simulator.speed*deltaTime
+            Math.signum(xDir)*speed* Simulator.speed * deltaTime,
+            Math.signum(yDir)*speed* Simulator.speed * deltaTime
         );
 
         Point2D newPosition = new Point2D.Double(
-                this.position.getX()+this.direction.getX(),
-                this.position.getY()+this.direction.getY()
+            this.position.getX()+this.direction.getX(),
+            this.position.getY()+this.direction.getY()
         );
 
         int collisionCount = 1;
         for (Prisoner prisoner : prisoners){
             if (prisoner == this) continue;
-            if (prisoner.position.distanceSq(position) < 64*64) collisionCount++;
+            if (prisoner.position.distanceSq(newPosition) < 64*64) collisionCount++;
         }
         if (collisionCount > 1) {
+            if (Math.random()>=0.91) this.panic = true;
             newPosition = new Point2D.Double(
-                    this.position.getX()+(this.direction.getX()/Math.pow(collisionCount, 2)),
-                    this.position.getY()+(this.direction.getY()/Math.pow(collisionCount, 2))
+                this.position.getX()+(this.direction.getX()/Math.pow(collisionCount, 2)),
+                this.position.getY()+(this.direction.getY()/Math.pow(collisionCount, 2))
             );
+        }
+        if (this.panic) {
+            if (collisionCount > 1) {
+                newPosition = new Point2D.Double(
+                    this.position.getX()+this.direction.getX(),
+                    this.position.getY()+this.direction.getY()
+                );
+                this.panic = false;
+            } else {
+                this.panic = false;
+            }
         }
         if (this.position.distanceSq(this.target) >= 64) this.position = newPosition;
     }
