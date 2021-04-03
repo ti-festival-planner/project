@@ -17,11 +17,11 @@ public class Schedule implements Serializable {
      * Constructs a schedule object
      */
     public Schedule() {
-            Guard Johan = new Guard("Johan Talboom");
-            Guard etienne = new Guard("Ethiënne Goossens");
-
-            guards.add(Johan);
-            guards.add(etienne);
+            guards.addAll(
+                new Guard("Johan Talboom"),
+                new Guard("Ethiënne Goossens"),
+                new Guard("Edwin van der Geld")
+            );
 
             activityNames.add("Sleep");
             activityNames.add("Eat");
@@ -31,13 +31,12 @@ public class Schedule implements Serializable {
             activityNames.add("Yard");
             activityNames.add("Lock up");
 
-            Groep lowSecurity = new Groep("low security");
-            Groep mediumSecurity = new Groep("Medium security");
-            Groep highSecurity = new Groep("High security");
+            prisonGroeps.addAll(
+                new Groep("low security"),
+                new Groep("Medium security"),
+                new Groep("High security")
+            );
 
-            prisonGroeps.add(lowSecurity);
-            prisonGroeps.add(mediumSecurity);
-            prisonGroeps.add(highSecurity);
     }
 
     @Override

@@ -6,16 +6,19 @@ import Room.*;
 import Util.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.WritableImage;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.jfree.fx.FXGraphics2D;
 import javax.imageio.*;
 import javax.json.*;
@@ -54,7 +57,8 @@ public class Simulator extends Application {
     private BooleanBinding upLeftPressed = upPressed.and(leftPressed);
     private BooleanBinding downLeftPressed = downPressed.and(leftPressed);
     private ArrayList<Activity> activities;
-
+    private AnimationTimer timer;
+    private Graphics2D graphics;
     /**
      * The start method is run at startup to initialise and start all timers
      * @param stage The main stage to display to the user.
@@ -70,7 +74,7 @@ public class Simulator extends Application {
         buildStatic(g2d);
         drawStatic(g2d);
         draw(g2d);
-
+        graphics = g2d;
         Scene scene = new Scene(new Group(canvas), 1920, 1080);
         //register the key listeners
         scene.setOnKeyPressed(event -> {
@@ -104,23 +108,15 @@ public class Simulator extends Application {
                 speed = 100;
             }
         });
-
-        for (Prisoner prisoner : prisoners) {
-            for (Cell cell : cells) {
-                if (!cell.getOccupied()) {
-                    prisoner.setTarget(cell.getPlace());
-                    cell.setOccupied(true);
-                    break;
-                }
+        stage.setOnCloseRequest(e -> {
+            try {
+                this.stop();
+            } catch (Exception e1) {
+                e1.printStackTrace();
             }
-        }
-
-//        canvas.setOnMouseMoved(event -> {
-//            for(Prisoner prisoner : this.prisoners) {
-//                prisoner.setTarget(new Point2D.Double(event.getX(), event.getY()));
-//            }
-//        });
-
+        });
+        for (Prisoner prisoner : prisoners) assignCell(prisoner);
+        for (Prisoner guard : guards) assignGuard(guard);
 
         scene.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.W) {
@@ -142,7 +138,7 @@ public class Simulator extends Application {
         stage.show();
 
     // make and start the animationTimer to update and draw each frame.
-        new AnimationTimer() {
+        timer = new AnimationTimer() {
             long last = -1;
             @Override
             public void handle(long now) {
@@ -153,7 +149,8 @@ public class Simulator extends Application {
                 drawStatic(g2d);
                 draw(g2d);
             }
-        }.start();
+        };
+        timer.start();
     }
 
     private ArrayList<Cell> cells = new ArrayList<>();
@@ -168,6 +165,14 @@ public class Simulator extends Application {
     private ArrayList<Shower> showers = new ArrayList<>();
     private ArrayList<Workplace> workplaces = new ArrayList<>();
     private ArrayList<Yard> yards = new ArrayList<>();
+
+
+    @Override
+    public void stop() throws Exception {
+        timer.stop();
+        graphics.dispose();
+        super.stop();
+    }
 
     private void roomInit() {
         rooms.forEach((k,v) -> {
@@ -289,13 +294,9 @@ public class Simulator extends Application {
         if (activity.isNow(currentblock-1)) return;
         switch (activity.getName()) {
             case "Sleep":
-                for (Cell cell : cells) {
-                    if (!cell.getOccupied()) {
-                        prisoner.setTarget(cell.getPlace());
-                        cell.setOccupied(true);
-                        break;
-                    }
-                }
+                assignGuard(prisoner);
+                if (isGuard(prisoner)) break;
+                assignCell(prisoner);
                 break;
             case "Eat":
                 for (Canteen canteen : canteens) {
@@ -328,14 +329,36 @@ public class Simulator extends Application {
                 }
                 break;
             case "Lock up":
-                for (Cell cell : cells) {
-                    if (!cell.getOccupied()) {
-                        prisoner.setTarget(cell.getPlace());
-                        cell.setOccupied(true);
-                        break;
-                    }
-                }
+                assignGuard(prisoner);
+                if (isGuard(prisoner)) break;
+                assignCell(prisoner);
                 break;
+        }
+    }
+
+    private boolean isGuard(Prisoner prisoner) {
+        return prisoner.getClass().getName().equals("Util.PrisonerGuard");
+    }
+
+    private void assignGuard(Prisoner prisoner) {
+        if (isGuard(prisoner)) {
+            for (int i = 0; i < guardRoom.size(); i++) {
+                if (Math.random()*(i/guardRoom.size()) >= 0.5) {
+                    GuardRoom guardRoom1 = guardRoom.get(i);
+                    prisoner.setTarget(guardRoom1.getPlace());
+                    break;
+                }
+            }
+        }
+    }
+
+    private void assignCell(Prisoner prisoner) {
+        for (Cell cell : cells) {
+            if (!cell.getOccupied()) {
+                prisoner.setTarget(cell.getPlace());
+                cell.setOccupied(true);
+                break;
+            }
         }
     }
 
