@@ -65,8 +65,8 @@ public class Simulator extends Application {
         this.cameraPosition = new Point2D.Double(-3500,0);
         this.canvas = new Canvas(canvasWidth, canvasHeight);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
-        npcInit();
         roomInit();
+        npcInit();
         buildStatic(g2d);
         drawStatic(g2d);
         draw(g2d);
@@ -179,10 +179,10 @@ public class Simulator extends Application {
             else if (k.contains("Cafetaria"))
                     canteens.add(new Canteen(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
-            else if (k.contains("Common room"))
+            else if (k.contains("Common Room"))
                     commonRooms.add(new CommonRoom(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
-            else if (k.contains("Guard room"))
+            else if (k.contains("Guard Room"))
                     guardRoom.add(new GuardRoom(new Point2D.Double( object.getInt("x"), object.getInt("y"))
                             ,new Point2D.Double((object.getInt("x")+object.getInt("width")),(object.getInt("y")+object.getInt("height")))));
             else if (k.contains("Kitchen"))
@@ -238,17 +238,21 @@ public class Simulator extends Application {
         }
     }
 
+    int uncapblock = 0;
     int currentblock = 0;
     int previousblock = 0;
     float timerFrame = 0;
     private void update(double deltaTime) {
         timerFrame = timerFrame + (float)deltaTime * speed;
-        currentblock = (int)Math.floor(timerFrame / 60);
+        uncapblock = (int)Math.floor(timerFrame / 60);
+        currentblock = uncapblock%24;
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
             prisoner.update(deltaTime, prisoners);
         }
-        if (currentblock > 24) currentblock = 0;
+        for (Prisoner prisoner : guards){
+            prisoner.update(deltaTime, prisoners);
+        }
         if (currentblock != previousblock) {
             previousblock = currentblock;
             updatePrisonerTarget();
@@ -270,7 +274,7 @@ public class Simulator extends Application {
                         }
                     }
                     for (PrisonerGuard guard : guards){
-                        if (mapgroep.get(guard.getClass().getName()).equals(activity.getGuard().getName())){
+                        if (guard.getName().equals(activity.getGuard().getName())){
                             updateTargetLocation(activity, guard);
                         }
                     }
@@ -282,6 +286,7 @@ public class Simulator extends Application {
     }
 
     public void updateTargetLocation(Activity activity, Prisoner prisoner) {
+        if (activity.isNow(currentblock-1)) return;
         switch (activity.getName()) {
             case "Sleep":
                 for (Cell cell : cells) {
@@ -353,17 +358,19 @@ public class Simulator extends Application {
             this.guards = new ArrayList<>();
             int maxGRoom = guardRoom.size();
             int counter = 0;
-            for (Guard guard : schedguards){
-                if (counter == maxGRoom)
-                    counter = 0;
-                this.guards.add(new PrisonerGuard(
-                        new Point2D.Double(((guardRoom.get(counter).Startcoords.getX()+guardRoom.get(counter).Endcoords.getX())/2),
-                                ((guardRoom.get(counter).Startcoords.getY()+guardRoom.get(counter).Endcoords.getY())/2)),
-                        guardImages,
-                        guard.getName()));
-                counter++;
+            if (schedguards != null) {
+                for (Guard guard : schedguards) {
+                    if (counter == maxGRoom)
+                        counter = 0;
+                    this.guards.add(new PrisonerGuard(
+                            new Point2D.Double(
+                                    ((guardRoom.get(counter).Startcoords.getX() + 6000 + guardRoom.get(counter).Endcoords.getX() + 6000) / 2),
+                                    ((guardRoom.get(counter).Startcoords.getY() + guardRoom.get(counter).Endcoords.getY()) / 2)),
+                            guardImages,
+                            guard.getName()));
+                    counter++;
+                }
             }
-
             this.prisoners.add(new PrisonerLow(new Point2D.Double(spawnX+6000,spawnY), lowImages));
             this.prisoners.add(new PrisonerMedium(new Point2D.Double(spawnX+6100,spawnY), mediumImages));
             this.prisoners.add(new PrisonerHigh(new Point2D.Double(spawnX+6200,spawnY), highImages));
@@ -568,6 +575,8 @@ public class Simulator extends Application {
     private void draw(Graphics2D g2d) {
         for (Prisoner prisoner: this.prisoners)
             prisoner.draw(g2d);
+        for (PrisonerGuard guard : this.guards)
+            guard.draw(g2d);
     }
 
 }

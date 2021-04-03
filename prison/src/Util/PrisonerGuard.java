@@ -10,4 +10,8 @@ public class PrisonerGuard extends Prisoner{
         super(position, images);
         this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
 }

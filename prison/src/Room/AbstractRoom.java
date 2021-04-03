@@ -21,14 +21,13 @@ public abstract class AbstractRoom {
     }
 
     public Point2D getPlace() {
-
         double x1 = (this.Startcoords.getX()+6000)/2;
         double x2 = (this.Endcoords.getX()+6000)/2;
         double y1 = this.Startcoords.getY()/2;
         double y2 = this.Endcoords.getY()/2;
 
-        double xoffset = (x2-x1)*Math.random();
-        double yoffset = (y2-y1)*Math.random();
+        double xoffset = 8+((x2-x1)-16)*Math.random();
+        double yoffset = 8+((y2-y1)-16)*Math.random();
 
         return new Point2D.Double(
                 x1+xoffset,
