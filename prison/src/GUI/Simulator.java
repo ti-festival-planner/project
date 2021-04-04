@@ -596,6 +596,33 @@ public class Simulator extends Application {
             prisoner.draw(g2d);
         for (PrisonerGuard guard : this.guards)
             guard.draw(g2d);
+        drawHUD(g2d);
+    }
+
+    private void drawHUD(Graphics2D g2d) {
+        drawWord(
+                g2d,
+                AffineTransform.getTranslateInstance((cameraPosition.getX()*-2)+100, (cameraPosition.getY()*-2)+300),
+                getWordShape(g2d, "Tijd: "+currentblock)
+        );
+        drawWord(
+                g2d,
+                AffineTransform.getTranslateInstance((cameraPosition.getX()*-2)+100, (cameraPosition.getY()*-2)+400),
+                getWordShape(g2d, "Snelheid: " + speed + "X")
+        );
+    }
+
+    private Shape getWordShape(Graphics2D g2d, String string1) {
+        Font font = new Font("Arial", Font.PLAIN, 100);
+        return font.createGlyphVector(g2d.getFontRenderContext(), string1).getOutline();
+    }
+
+    private void drawWord(Graphics2D g2d, AffineTransform tx, Shape word) {
+        g2d.setColor(Color.BLACK);
+        g2d.fill(tx.createTransformedShape(word));
+        g2d.setColor(Color.WHITE);
+        g2d.draw(tx.createTransformedShape(word));
+        g2d.setColor(Color.BLACK);
     }
 
 }
