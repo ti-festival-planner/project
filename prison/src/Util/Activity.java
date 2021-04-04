@@ -63,4 +63,11 @@ public class Activity implements Serializable {
     public void setGroep(Groep groep) {
         this.groep = groep;
     }
+
+    /**
+     * Methods
+     */
+    public boolean isNow(int hour) {
+        return hour>=this.hourStart && hour<=this.hourEnd;
+    }
 }

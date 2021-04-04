@@ -106,9 +106,13 @@ public class ActivityController {
         Activity activity = new Activity(startHour, endHour, name, guard, groep);
         Activity check = checkOverlap(activity);
         if (name == null||guard== null||groep == null)
-            throw new IllegalArgumentException("Gegevens missend");
-        if (endHour < startHour)
-            throw new IllegalArgumentException("Begin later dan einde");
+            throw new IllegalArgumentException("Sorry, we missen wat gegevens bij het aanmaken van de activiteit, heb je alles ingevuld?");
+        if (endHour > 23 || startHour > 23 ){
+            throw  new IllegalArgumentException("Je kan maximaal een tijd gebruiken tot en met 23");
+        }
+        if (endHour < startHour) {
+            throw new IllegalArgumentException("De activiteit die je aanmaakt is niet mogelijk, het begin ligt later dan het einde.");
+        }
         if (check == null) {
             table.getItems().add(activity);
             schedule.addActivity(activity);
@@ -130,12 +134,17 @@ public class ActivityController {
         ArrayList<Activity> activities = schedule.getSchedule().activities;
         for (Activity activity1 : activities){
             if (activity1.getGroep() == activity.getGroep()){
-                if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
+                if ((activity.getHourStart() >= activity1.getHourStart() && activity.getHourStart() <= activity1.getHourEnd()) ||
+                        (activity.getHourEnd() >= activity1.getHourStart() && activity.getHourEnd() <= activity1.getHourEnd()) ||
+                        (activity.getHourStart() <= activity1.getHourStart() && activity.getHourEnd() >= activity1.getHourEnd()))
+
                     return activity1;
             }
 
             if (activity.getGuard() == activity1.getGuard()){
-                if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
+                if ((activity.getHourStart() >= activity1.getHourStart() && activity.getHourStart() <= activity1.getHourEnd()) ||
+                        (activity.getHourEnd() >= activity1.getHourStart() && activity.getHourEnd() <= activity1.getHourEnd()) ||
+                        (activity.getHourStart() <= activity1.getHourStart() && activity.getHourEnd() >= activity1.getHourEnd()))
                     return activity1;
             }
         }
