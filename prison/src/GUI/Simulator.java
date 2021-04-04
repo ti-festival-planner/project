@@ -16,6 +16,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.jfree.fx.FXGraphics2D;
 import javax.imageio.*;
 import javax.json.*;
