@@ -130,12 +130,17 @@ public class ActivityController {
         ArrayList<Activity> activities = schedule.getSchedule().activities;
         for (Activity activity1 : activities){
             if (activity1.getGroep() == activity.getGroep()){
-                if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
+                if ((activity.getHourStart() >= activity1.getHourStart() && activity.getHourStart() <= activity1.getHourEnd()) ||
+                        (activity.getHourEnd() >= activity1.getHourStart() && activity.getHourEnd() <= activity1.getHourEnd()) ||
+                        (activity.getHourStart() <= activity1.getHourStart() && activity.getHourEnd() >= activity1.getHourEnd()))
+
                     return activity1;
             }
 
             if (activity.getGuard() == activity1.getGuard()){
-                if (activity1.getHourStart() >= activity.getHourEnd() || activity1.getHourEnd() >= activity.getHourStart())
+                if ((activity.getHourStart() >= activity1.getHourStart() && activity.getHourStart() <= activity1.getHourEnd()) ||
+                        (activity.getHourEnd() >= activity1.getHourStart() && activity.getHourEnd() <= activity1.getHourEnd()) ||
+                        (activity.getHourStart() <= activity1.getHourStart() && activity.getHourEnd() >= activity1.getHourEnd()))
                     return activity1;
             }
         }

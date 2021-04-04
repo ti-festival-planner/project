@@ -84,19 +84,22 @@ public class Simulator extends Application {
             if (event.getCode() == KeyCode.A) {
                 rightPressed.setValue(true);
             }
-            if (event.getCode() == KeyCode.SPACE){
+            if (event.getCode() == KeyCode.SHIFT){
                 if (speed > 2){
                     speed = 3;
                 }else {
                     speed ++;
                 }
             }
-            if (event.getCode() == KeyCode.SHIFT){
-                if (speed < 2){
+            if (event.getCode() == KeyCode.CONTROL){
+                if (speed < 2 || speed > 50 ){
                     speed = 1;
                 }else {
                     speed --;
                 }
+            }
+            if (event.getCode() == KeyCode.SPACE){
+                speed = 0;
             }
             if (event.getCode() == KeyCode.DELETE){
                 speed = 100;
