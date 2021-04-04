@@ -155,6 +155,7 @@ public class ActivityController {
      * checkOverlapEdit checks overlap like checkOverlap but for edits
      */
     private Activity checkOverlapEdit(Activity activity, Activity oldActivity){
+
         ArrayList<Activity> activities = schedule.getSchedule().activities;
         for (Activity activity1 : activities) {
             if (activity1 != oldActivity) {
