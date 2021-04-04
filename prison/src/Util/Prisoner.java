@@ -11,14 +11,14 @@ import java.util.ArrayList;
 
 public abstract class Prisoner {
 
-    protected Point2D position;
+    Point2D position;
     private Point2D direction;
 
     private double speed;
 
     private boolean panic;
 
-    protected ArrayList<BufferedImage> sprites;
+    ArrayList<BufferedImage> sprites;
     private Point2D target;
     Prisoner(Point2D position, ArrayList<BufferedImage> images) {
         this.position = position;
@@ -82,7 +82,6 @@ public abstract class Prisoner {
     }
 
     public void setTarget(Point2D newTarget) {
-//        this.target = newTarget;
         this.target = new Point2D.Double(newTarget.getX()*2, newTarget.getY()*2);
     }
 

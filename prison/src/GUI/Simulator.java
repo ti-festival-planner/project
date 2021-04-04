@@ -16,7 +16,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.jfree.fx.FXGraphics2D;
 import javax.imageio.*;
 import javax.json.*;
@@ -224,7 +223,7 @@ public class Simulator extends Application {
      */
 
     private ObservableList<Guard> schedguards;
-    public void loadSched(ActivityController activityController){
+    void loadSched(ActivityController activityController){
         Schedule schedule = activityController.getSchedule().getSchedule();
         schedguards = activityController.getSchedule().getGuards();
         if (schedule.activities.size() == 0){
@@ -243,14 +242,13 @@ public class Simulator extends Application {
         }
     }
 
-    int uncapblock = 0;
-    int currentblock = 0;
-    int previousblock = 0;
-    float timerFrame = 0;
+    private int currentblock = 0;
+    private int previousblock = 0;
+    private float timerFrame = 0;
     private void update(double deltaTime) {
         timerFrame = timerFrame + (float)deltaTime * speed;
-        uncapblock = (int)Math.floor(timerFrame / 60);
-        currentblock = uncapblock%24;
+        int uncapblock = (int) Math.floor(timerFrame / 60);
+        currentblock = uncapblock %24;
         moveCamera(deltaTime);
         for (Prisoner prisoner : prisoners){
             prisoner.update(deltaTime, prisoners);
@@ -290,7 +288,7 @@ public class Simulator extends Application {
         }
     }
 
-    public void updateTargetLocation(Activity activity, Prisoner prisoner) {
+    private void updateTargetLocation(Activity activity, Prisoner prisoner) {
         if (activity.isNow(currentblock-1)) return;
         switch (activity.getName()) {
             case "Sleep":
@@ -299,34 +297,19 @@ public class Simulator extends Application {
                 assignCell(prisoner);
                 break;
             case "Eat":
-                for (Canteen canteen : canteens) {
-                    prisoner.setTarget(canteen.getPlace());
-                    break;
-                }
+                assignRoom(prisoner, new ArrayList<>(canteens));
                 break;
             case "Shower":
-                for (Shower shower : showers) {
-                    prisoner.setTarget(shower.getPlace());
-                    break;
-                }
+                assignRoom(prisoner, new ArrayList<>(showers));
                 break;
             case "Free Time":
-                for (CommonRoom commonRoom : commonRooms) {
-                    prisoner.setTarget(commonRoom.getPlace());
-                    break;
-                }
+                assignRoom(prisoner, new ArrayList<>(commonRooms));
                 break;
             case "Work":
-                for (Workplace workplace : workplaces) {
-                    prisoner.setTarget(workplace.getPlace());
-                    break;
-                }
+                assignRoom(prisoner, new ArrayList<>(workplaces));
                 break;
             case "Yard":
-                for (Yard yard : yards) {
-                    prisoner.setTarget(yard.getPlace());
-                    break;
-                }
+                assignRoom(prisoner, new ArrayList<>(yards));
                 break;
             case "Lock up":
                 assignGuard(prisoner);
@@ -336,15 +319,19 @@ public class Simulator extends Application {
         }
     }
 
+    private void assignRoom(Prisoner prisoner, ArrayList<AbstractRoom> rooms) {
+        prisoner.setTarget(rooms.get((int)Math.floor(Math.random()*rooms.size())).getPlace());
+    }
+
     private boolean isGuard(Prisoner prisoner) {
         return prisoner.getClass().getName().equals("Util.PrisonerGuard");
     }
 
     private void assignGuard(Prisoner prisoner) {
         if (isGuard(prisoner)) {
-            for (int i = 0; i < guardRoom.size(); i++) {
+            for (int i = 1; i <= guardRoom.size(); i++) {
                 if (Math.random()*(i/guardRoom.size()) >= 0.5) {
-                    GuardRoom guardRoom1 = guardRoom.get(i);
+                    GuardRoom guardRoom1 = guardRoom.get(i-1);
                     prisoner.setTarget(guardRoom1.getPlace());
                     break;
                 }
@@ -447,9 +434,7 @@ public class Simulator extends Application {
         canvas.setTranslateY(cameraPosition.getY());
     }
 
-
     private void loadjsonmap() {
-
         File jsonInputFile = new File(resourcePath+tilemapName);
         InputStream is;
         try {
@@ -514,9 +499,7 @@ public class Simulator extends Application {
             reader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return;
         }
-
     }
 
     /**
@@ -535,14 +518,6 @@ public class Simulator extends Application {
         WritableImage wim = new WritableImage(canvasWidth, canvasHeight);
         canvas.snapshot(null, wim);
         this.cachedLayers = SwingFXUtils.fromFXImage(wim, null);
-
-        // Save as PNG
-//        File file = new File("background.png");
-//        try {
-//            ImageIO.write(this.cachedLayers, "png", file);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     /**
@@ -564,34 +539,6 @@ public class Simulator extends Application {
                 tiles.get(tile.getValue()),
                 AffineTransform.getTranslateInstance(6000+(tile.getKey().getX() * tileWidth), tile.getKey().getY() * tileHeight),
                 null);
-        }
-    }
-
-    /**
-     * drawpoint is a method that draws the tiles at a specific point
-     * @param g2d the graphics2d object on which to draw the layer
-     * @param point the point to draw around.
-     */
-    private void drawPoint(Graphics2D g2d, Point2D point) {
-        Point2D point32 = new Point2D.Double(point.getX()-(point.getX()%32),point.getY()-(point.getY()%32));
-        int viewWidth = 5;
-        int viewWidth2 = (int) Math.floor(viewWidth/2);
-        int viewHeight = 5;
-        int viewHeight2 = (int) Math.floor(viewWidth/2);
-        String[] layers = {"Background","Buildings","Path","Furniture","Items"};
-        for (int k = 0; k < 5; k++) {
-            HashMap<Point2D, Integer> layer = map.get(layers[k]);
-            for (int i = -viewWidth2; i < viewWidth; i++) {
-                double chunkx = point32.getX()+i*tileWidth;
-                for (int j = -viewHeight2; i < viewHeight; i++) {
-                    double chunky = point32.getY()+j*tileHeight;
-                    if (layer.get(new Point2D.Double(chunkx/tileWidth, chunky/tileHeight)) == null) continue;
-                    g2d.drawImage(
-                            tiles.get(layer.get(new Point2D.Double(chunkx, chunky))),
-                            AffineTransform.getTranslateInstance(6000+(chunkx * tileWidth), chunky * tileHeight),
-                            null);
-                }
-            }
         }
     }
 
