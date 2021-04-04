@@ -179,11 +179,18 @@ public class Gui extends Application {
                         guardComboBox.getValue(),
                         groupComboBox.getValue());
                 clearInput();
-            } catch (Exception ne){
+            } catch (NumberFormatException nfe){
                 Alert error = new Alert(Alert.AlertType.ERROR);
                 error.setHeaderText("Er is wat fout gegaan bij het opslaan:");
                 error.setTitle("Error!");
-                error.setContentText("Details error: \n"+ne.getMessage());
+                error.setContentText("Details error: \n"+
+                        "Je probeert een teken in te vullen wat geen getal is.");
+                error.showAndWait();
+            } catch (Exception ex){
+                Alert error = new Alert(Alert.AlertType.ERROR);
+                error.setHeaderText("Er is wat fout gegaan bij het opslaan:");
+                error.setTitle("Error!");
+                error.setContentText("Details error: \n"+ex.getMessage());
                 error.showAndWait();
             }
         });

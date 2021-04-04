@@ -20,6 +20,13 @@ public class Schedule implements Serializable {
             guards.addAll(
                 new Guard("Johan Talboom"),
                 new Guard("Ethiënne Goossens"),
+                new Guard("Jessica van der Heijden"),
+                new Guard("Jan Oostindie"),
+                new Guard("Joli van Kruijsdijk"),
+                new Guard("Hans van der Linden"),
+                new Guard("Maurice Snoeren"),
+                new Guard("Pieter Kop Janssen"),
+                new Guard("Katja Jongen"),
                 new Guard("Edwin van der Geld")
             );
 
